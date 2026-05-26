@@ -10,7 +10,7 @@ const Footer = () => {
 
   return (
     <footer className="footer" id="footer">
-      <div className="footer-content" style={{ gridTemplateColumns: '2fr 1fr' }}>
+      <div className="footer-content">
         <div className="footer-brand">
           <a href="#" className="footer-logo text-gradient">
             Chaitanya.
@@ -18,6 +18,27 @@ const Footer = () => {
           <p className="footer-tagline">
             Creating immersive digital experiences, interactive 3D graphics, and modern web application interfaces.
           </p>
+        </div>
+
+        <div className="footer-nav">
+          <h4 className="footer-title">Explore</h4>
+          <ul className="footer-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#/about-detail">About</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#blogs">Blogs</a></li>
+          </ul>
+        </div>
+
+        <div className="footer-nav">
+          <h4 className="footer-title">Services</h4>
+          <ul className="footer-links">
+            <li><a href="#services">Web Experiences</a></li>
+            <li><a href="#services">Digital Solutions</a></li>
+            <li><a href="#services">Interactive Interfaces</a></li>
+            <li><a href="#services">Scalable Systems</a></li>
+          </ul>
         </div>
 
         <div className="footer-socials">

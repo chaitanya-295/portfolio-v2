@@ -7,6 +7,8 @@ import AboutDetail from './components/AboutDetail';
 import Services from './components/Services';
 import Projects from './components/Projects';
 import Footer from './components/Footer';
+import Testimonials from './components/Testimonials';
+import Cta from './components/Cta';
 import './App.css';
 
 function App() {
@@ -49,6 +51,15 @@ function App() {
 
           {/* What I Create (Services) Section */}
           <Services />
+
+          {/* Things I've Built (Projects) Section */}
+          <Projects />
+
+          {/* What Clients Say (Testimonials) Section */}
+          <Testimonials />
+
+          {/* Business Online (CTA) Section */}
+          <Cta />
         </>
       )}
 
