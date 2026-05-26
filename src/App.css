@@ -574,7 +574,6 @@
 /* Footer Styles */
 .footer {
   margin-top: auto;
-  border-top: 1px solid var(--glass-border);
   padding: 60px 4% 30px;
   background: rgba(8, 6, 21, 0.6);
   backdrop-filter: blur(12px);
@@ -1862,4 +1861,15 @@
     width: 100%;
     justify-content: center;
   }
+}
+
+/* Section Divider */
+.section-divider {
+  width: 90%;
+  max-width: 1400px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.06) 25%, rgba(255, 255, 255, 0.06) 75%, rgba(255, 255, 255, 0) 100%);
+  margin: 0 auto;
+  position: relative;
+  z-index: 10;
 }

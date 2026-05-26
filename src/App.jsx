@@ -45,21 +45,27 @@ function App() {
         <>
           {/* Central Cosmic Ring Section */}
           <Hero />
+          <div className="section-divider" />
 
           {/* The Person Behind The Screen Section */}
           <About />
+          <div className="section-divider" />
 
           {/* What I Create (Services) Section */}
           <Services />
+          <div className="section-divider" />
 
           {/* Things I've Built (Projects) Section */}
           <Projects />
+          <div className="section-divider" />
 
           {/* What Clients Say (Testimonials) Section */}
           <Testimonials />
+          <div className="section-divider" />
 
           {/* Business Online (CTA) Section */}
           <Cta />
+          <div className="section-divider" />
         </>
       )}
 
