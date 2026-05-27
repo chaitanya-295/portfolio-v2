@@ -1,7 +1,12 @@
 import { useState, useEffect } from 'react';
 
 const Hero = () => {
-  const phrases = ["Full Stack Developer", "Creative Problem Solver"];
+  const phrases = [
+    "Full Stack Developer",
+    "Creative Problem Solver",
+    "UI/UX Designer",
+    "Creative Developer"
+  ];
   const [currentText, setCurrentText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [loopNum, setLoopNum] = useState(0);
