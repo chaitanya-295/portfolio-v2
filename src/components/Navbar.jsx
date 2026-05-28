@@ -11,7 +11,7 @@ const Navbar = () => {
       <ul className={`nav-links ${isOpen ? 'mobile-active' : ''}`}>
         <li><a href="#home" onClick={() => setIsOpen(false)}>Home</a></li>
         <li><a href="#/about-detail" onClick={() => setIsOpen(false)}>About</a></li>
-        <li><a href="#projects" onClick={() => setIsOpen(false)}>Projects</a></li>
+        <li><a href="#/projects" onClick={() => setIsOpen(false)}>Projects</a></li>
         <li><a href="#services" onClick={() => setIsOpen(false)}>Services</a></li>
         <li><a href="#blogs" onClick={() => setIsOpen(false)}>Blogs</a></li>
         <li><a href="#footer" onClick={() => setIsOpen(false)}>Contacts</a></li>

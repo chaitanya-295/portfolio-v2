@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
 import GalaxyBackground from './components/GalaxyBackground';
 import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import About from './components/About';
+import Hero, { About, Services, Projects, Testimonials, Cta } from './components/Hero';
 import AboutDetail from './components/AboutDetail';
-import Services from './components/Services';
-import Projects from './components/Projects';
+import ProjectDetail from './components/ProjectDetail';
+import ProjectsGallery from './components/ProjectsGallery';
 import Footer from './components/Footer';
-import Testimonials from './components/Testimonials';
-import Cta from './components/Cta';
 import './App.css';
 
 function App() {
@@ -19,6 +16,12 @@ function App() {
       const hash = window.location.hash;
       if (hash === '#/about-detail' || hash === '#about-detail' || hash.includes('about-detail')) {
         setCurrentRoute('about-detail');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (hash.includes('project-detail')) {
+        setCurrentRoute('project-detail');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (hash === '#/projects') {
+        setCurrentRoute('projects');
         window.scrollTo({ top: 0, behavior: 'instant' });
       } else {
         setCurrentRoute('home');
@@ -31,6 +34,35 @@ function App() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
+  useEffect(() => {
+    if (currentRoute !== 'home') return;
+
+    // Timeout allows DOM nodes to fully mount before querySelecting
+    const timeoutId = setTimeout(() => {
+      const observerOptions = {
+        root: null,
+        rootMargin: '0px 0px -60px 0px',
+        threshold: 0.08,
+      };
+
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      const revealElements = document.querySelectorAll('.reveal-on-scroll');
+      revealElements.forEach((el) => observer.observe(el));
+
+      return () => observer.disconnect();
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [currentRoute]);
+
   return (
     <div className="app-container">
       {/* Dynamic Interactive HTML5 Canvas Galaxy Background */}
@@ -41,6 +73,10 @@ function App() {
 
       {currentRoute === 'about-detail' ? (
         <AboutDetail />
+      ) : currentRoute === 'project-detail' ? (
+        <ProjectDetail />
+      ) : currentRoute === 'projects' ? (
+        <ProjectsGallery />
       ) : (
         <>
           {/* Central Cosmic Ring Section */}

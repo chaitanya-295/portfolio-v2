@@ -43,30 +43,30 @@ const AboutDetail = () => {
 
   const [activeTab, setActiveTab] = useState('about');
 
-  const certifications = [
+  const experiences = [
     {
-      title: "Full Stack Web Development Bootcamp",
-      issuer: "Udemy",
-      date: "Dec 2024",
+      role: "Full Stack Developer (Freelance)",
+      company: "Self-Employed / Remote",
+      duration: "2024 - Present",
+      description: "Designed, built, and deployed responsive web applications for various clients. Developed robust APIs using Node.js/Express, integrated third-party services, and built dynamic React interfaces. Achieved optimized page loads and high satisfaction ratings by implementing design-first principles.",
       color: "var(--accent-cyan)",
-      glow: "rgba(6, 182, 212, 0.1)",
-      link: "#"
+      glow: "rgba(6, 182, 212, 0.1)"
     },
     {
-      title: "Advanced React & Redux Architecture",
-      issuer: "Meta (Coursera)",
-      date: "Aug 2025",
+      role: "Frontend Developer Intern",
+      company: "Tech Solutions Inc.",
+      duration: "2023 - 2024",
+      description: "Collaborated with designers and backend engineers to build responsive, high-performance UI components using React.js and CSS. Assisted in migrating legacy platforms to modern architectures, improved website accessibility, and integrated REST APIs.",
       color: "var(--accent-purple)",
-      glow: "rgba(168, 85, 247, 0.1)",
-      link: "#"
+      glow: "rgba(168, 85, 247, 0.1)"
     },
     {
-      title: "Google Cloud Digital Leader Certified",
-      issuer: "Google Cloud",
-      date: "Mar 2026",
+      role: "Open Source Contributor",
+      company: "GitHub Community",
+      duration: "2022 - Present",
+      description: "Contributed to various open-source frontend and developer utility libraries. Collaborated with global maintainers on issue resolution, bug fixes, features integration, and documentation updates.",
       color: "var(--accent-pink)",
-      glow: "rgba(236, 72, 153, 0.1)",
-      link: "#"
+      glow: "rgba(236, 72, 153, 0.1)"
     }
   ];
 
@@ -118,15 +118,15 @@ const AboutDetail = () => {
           Education
         </button>
         <button
-          className={`tab-btn ${activeTab === 'certification' ? 'active' : ''}`}
-          onClick={() => setActiveTab('certification')}
+          className={`tab-btn ${activeTab === 'experience' ? 'active' : ''}`}
+          onClick={() => setActiveTab('experience')}
         >
-          Certifications
+          Experience
         </button>
       </div>
 
       {activeTab === 'about' && (
-        <>
+        <div className="tab-content-wrapper fade-in-up">
           <div className="about-grid">
           {/* Left Column: Biography Details & Stats */}
           <div className="about-bio-panel glass-panel">
@@ -210,11 +210,11 @@ const AboutDetail = () => {
               </div>
             ))}
           </div>
-        </>
+        </div>
       )}
 
       {activeTab === 'education' && (
-        <div className="education-timeline glass-panel">
+        <div className="education-timeline glass-panel fade-in-up">
           <div className="timeline-glow" style={{ position: 'absolute', top: '10%', left: '10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(6, 182, 212, 0.06) 0%, rgba(0, 0, 0, 0) 70%)', filter: 'blur(20px)', pointerEvents: 'none' }}></div>
           <h3 className="timeline-title" style={{ fontSize: '24px', fontWeight: '600', color: 'white', marginBottom: '32px', textAlign: 'center' }}>Academic Qualifications</h3>
 
@@ -246,35 +246,23 @@ const AboutDetail = () => {
         </div>
       )}
 
-      {activeTab === 'certification' && (
-        <div className="certifications-view" style={{ maxWidth: '1300px', margin: '0 auto', width: '100%' }}>
-          <h3 style={{ fontSize: '24px', fontWeight: '600', color: 'white', marginBottom: '32px', textAlign: 'center' }}>Professional Licenses & Certifications</h3>
+      {activeTab === 'experience' && (
+        <div className="education-timeline glass-panel fade-in-up">
+          <div className="timeline-glow" style={{ position: 'absolute', top: '10%', left: '10%', width: '150px', height: '150px', background: 'radial-gradient(circle, rgba(168, 85, 247, 0.06) 0%, rgba(0, 0, 0, 0) 70%)', filter: 'blur(20px)', pointerEvents: 'none' }}></div>
+          <h3 className="timeline-title" style={{ fontSize: '24px', fontWeight: '600', color: 'white', marginBottom: '32px', textAlign: 'center' }}>Professional Experience</h3>
 
-          <div className="certifications-grid">
-            {certifications.map((cert, idx) => (
-              <div key={idx} className="glass-panel certification-card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', position: 'relative', overflow: 'hidden' }}>
-                <div className="cert-glow" style={{ position: 'absolute', top: '-10%', right: '-10%', width: '100px', height: '100px', background: `radial-gradient(circle, ${cert.glow} 0%, rgba(0, 0, 0, 0) 70%)`, filter: 'blur(15px)', pointerEvents: 'none' }}></div>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '18px' }}>
-                    <span style={{ fontSize: '12px', textTransform: 'uppercase', letterSpacing: '1px', color: cert.color, fontWeight: '700' }}>{cert.issuer}</span>
-                    <div style={{ color: cert.color }}>
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <h4 style={{ fontSize: '20px', fontWeight: '600', color: 'white', marginBottom: '10px', lineHeight: '1.4' }}>{cert.title}</h4>
-                  <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Issued: {cert.date}</p>
+          <div className="timeline-items" style={{ display: 'flex', flexDirection: 'column', gap: '40px', position: 'relative', paddingLeft: '24px', borderLeft: '2px solid rgba(255, 255, 255, 0.08)' }}>
+            {experiences.map((exp, idx) => (
+              <div key={idx} className="timeline-item" style={{ position: 'relative' }}>
+                <div className="timeline-dot" style={{ position: 'absolute', left: '-31px', top: '6px', width: '12px', height: '12px', borderRadius: '50%', background: exp.color, boxShadow: `0 0 8px ${exp.color}` }}></div>
+                <div className="timeline-header" style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', marginBottom: '8px' }}>
+                  <h4 style={{ fontSize: '18px', fontWeight: '600', color: 'white' }}>{exp.role}</h4>
+                  <span style={{ fontSize: '13px', color: exp.color, fontWeight: '600', background: exp.glow, padding: '2px 10px', borderRadius: '20px' }}>{exp.duration}</span>
                 </div>
-                <div style={{ marginTop: '24px' }}>
-                  <a href={cert.link} target="_blank" rel="noopener noreferrer" style={{ fontSize: '14.5px', color: 'white', textDecoration: 'none', fontWeight: '600', display: 'inline-flex', alignItems: 'center', gap: '6px', transition: 'color 0.2s' }} className="cert-link">
-                    Verify Credential
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="7" y1="17" x2="17" y2="7" />
-                      <polyline points="7 7 17 7 17 17" />
-                    </svg>
-                  </a>
-                </div>
+                <h5 style={{ fontSize: '15px', color: 'var(--text-secondary)', marginBottom: '12px', fontWeight: '500' }}>{exp.company}</h5>
+                <p style={{ fontSize: '14.5px', color: 'var(--text-secondary)', lineHeight: '1.6' }}>
+                  {exp.description}
+                </p>
               </div>
             ))}
           </div>
