@@ -1580,9 +1580,30 @@
 
 .pricing-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
   width: 100%;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+@media (max-width: 1024px) {
+  .values-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .values-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .pricing-card {
@@ -2289,7 +2310,7 @@
 
 .project-detail-grid {
   display: grid;
-  grid-template-columns: 0.8fr 1.2fr;
+  grid-template-columns: 1.2fr 0.8fr;
   gap: 40px;
   width: 100%;
   margin-top: 40px;

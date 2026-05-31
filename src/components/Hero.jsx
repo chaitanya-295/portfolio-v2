@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import projectsList from '../data/projects';
+import projectsList, { useProjects } from '../data/projects';
+import { useServices } from '../data/services';
+import { useProfile } from '../data/profile';
 
 // ==========================================
 // 1. HERO COMPONENT (Default Export)
 // ==========================================
 const Hero = () => {
-  const phrases = [
+  const { profile, loading: profileLoading } = useProfile();
+  
+  const phrases = profile.phrases || [
     "Full Stack Developer",
     "Creative Problem Solver",
     "UI/UX Designer",
@@ -16,11 +20,15 @@ const Hero = () => {
   const [loopNum, setLoopNum] = useState(0);
   const [typingSpeed, setTypingSpeed] = useState(100);
 
+  const phrasesStr = JSON.stringify(phrases);
+
   useEffect(() => {
     let timer;
     const handleTyping = () => {
-      const i = loopNum % phrases.length;
-      const fullText = phrases[i];
+      const parsedPhrases = JSON.parse(phrasesStr);
+      if (parsedPhrases.length === 0) return;
+      const i = loopNum % parsedPhrases.length;
+      const fullText = parsedPhrases[i];
 
       if (isDeleting) {
         setCurrentText(fullText.substring(0, currentText.length - 1));
@@ -41,7 +49,46 @@ const Hero = () => {
 
     timer = setTimeout(handleTyping, typingSpeed);
     return () => clearTimeout(timer);
-  }, [currentText, isDeleting, loopNum, typingSpeed]);
+  }, [currentText, isDeleting, loopNum, typingSpeed, phrasesStr]);
+
+  if (profileLoading) {
+    return (
+      <section className="hero-section" id="home" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '600px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '3px solid rgba(255, 255, 255, 0.1)', borderTopColor: 'var(--accent-cyan)', animation: 'spin-slow 2s linear infinite' }} />
+          <span style={{ marginTop: '16px', fontSize: '14px', color: 'var(--text-secondary)' }}>Loading developer profile...</span>
+        </div>
+      </section>
+    );
+  }
+
+  const handleOpenResume = (e) => {
+    e.preventDefault();
+    const url = profile.resumeUrl || '#resume';
+    if (url.startsWith('data:')) {
+      try {
+        const parts = url.split(',');
+        const mimeType = parts[0].match(/:(.*?);/)[1];
+        const byteCharacters = atob(parts[1]);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: mimeType });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, '_blank');
+      } catch (err) {
+        console.error("Failed to open base64 resume:", err);
+        const newWindow = window.open();
+        if (newWindow) {
+          newWindow.document.write(`<iframe src="${url}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>`);
+        }
+      }
+    } else {
+      window.open(url, '_blank');
+    }
+  };
 
   return (
     <section className="hero-section" id="home">
@@ -52,7 +99,7 @@ const Hero = () => {
         </div>
 
         <h1 className="hero-title">
-          <span className="text-gradient">Chaitanya</span>
+          <span className="text-gradient">{profile.name || "Chaitanya"}</span>
         </h1>
 
         <h2 style={{ fontSize: '24px', color: 'var(--accent-cyan)', fontWeight: '600', marginBottom: '24px', letterSpacing: '-0.5px', minHeight: '36px', display: 'flex', alignItems: 'center' }}>
@@ -61,14 +108,14 @@ const Hero = () => {
         </h2>
 
         <p className="hero-desc">
-          Full Stack Developer & Creative Problem Solver focused on building responsive websites, modern interfaces, and digital experiences.
+          {profile.shortBio}
         </p>
 
         <div className="hero-actions" style={{ flexWrap: 'wrap', gap: '16px' }}>
           <a href="#projects" className="btn-primary">
             View Projects
           </a>
-          <a href="#resume" className="btn-secondary">
+          <a href={profile.resumeUrl || "#resume"} onClick={handleOpenResume} className="btn-secondary">
             Download Resume
           </a>
           <a href="#footer" className="btn-secondary">
@@ -77,37 +124,45 @@ const Hero = () => {
         </div>
         <div className="social-icons">
           {/* GitHub */}
-          <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="GitHub">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-            </svg>
-          </a>
+          {profile.githubUrl && (
+            <a href={profile.githubUrl} target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="GitHub">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+              </svg>
+            </a>
+          )}
 
           {/* LinkedIn */}
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="LinkedIn">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-              <rect x="2" y="9" width="4" height="12"></rect>
-              <circle cx="4" cy="4" r="2"></circle>
-            </svg>
-          </a>
+          {profile.linkedinUrl && (
+            <a href={profile.linkedinUrl} target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="LinkedIn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+                <rect x="2" y="9" width="4" height="12"></rect>
+                <circle cx="4" cy="4" r="2"></circle>
+              </svg>
+            </a>
+          )}
 
           {/* Instagram */}
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="Instagram">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-              <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-              <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-            </svg>
-          </a>
+          {profile.instagramUrl && (
+            <a href={profile.instagramUrl} target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+          )}
 
           {/* Email */}
-          <a href="mailto:chaitanyakamble2005@gmail.com" className="social-icon-btn" aria-label="Email">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-              <polyline points="22,6 12,13 2,6"></polyline>
-            </svg>
-          </a>
+          {profile.email && (
+            <a href={`mailto:${profile.email}`} className="social-icon-btn" aria-label="Email">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+            </a>
+          )}
         </div>
       </div>
 
@@ -130,11 +185,17 @@ const Hero = () => {
 // 2. ABOUT COMPONENT
 // ==========================================
 export const About = () => {
-  const stats = [
+  const { profile } = useProfile();
+  
+  const stats = profile.stats || [
     { value: '3+', label: 'Years of Coding' },
     { value: '20+', label: 'Projects Built' },
     { value: '100%', label: 'Devoted to Code' },
   ];
+
+  const firstPara = profile.homeBio || (profile.longBio && profile.longBio.length > 0
+    ? profile.longBio[0]
+    : "I create modern digital solutions by combining thoughtful design, clean development practices, and creative problem solving.");
 
   return (
     <section className="about-section" id="about">
@@ -155,7 +216,7 @@ export const About = () => {
         <div className="about-bio-panel glass-panel reveal-on-scroll reveal-fade-left delay-100" style={{ textAlign: 'center', padding: '48px 32px' }}>
           <div className="bio-glow-effect"></div>
           <p className="bio-text" style={{ fontSize: '20px', lineHeight: '1.8', color: 'var(--text-primary)', marginBottom: '32px', fontWeight: '400' }}>
-            I create modern digital solutions by combining thoughtful design, clean development practices, and creative problem solving.
+            {firstPara}
           </p>
 
           <a
@@ -183,101 +244,26 @@ export const About = () => {
 // 3. SERVICES COMPONENT
 // ==========================================
 export const Services = () => {
+  const { services, loading } = useServices();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
-    if (isHovered) return;
+    if (isHovered || loading || services.length === 0) return;
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % 6);
-    }, 4500); // Rotate automatically every 4.5 seconds
+      setActiveIndex((prev) => (prev + 1) % services.length);
+    }, 4500);
     return () => clearInterval(interval);
-  }, [isHovered]);
-
-  const servicesList = [
-    {
-      title: 'Web Experiences',
-      desc: 'Modern websites designed for performance and responsiveness.',
-      glow: 'rgba(6, 182, 212, 0.15)', // Cyan glow
-      tags: ['HTML5/CSS3', 'Modern JS', 'Vite', 'SEO'],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-          <line x1="8" y1="21" x2="16" y2="21" />
-          <line x1="12" y1="17" x2="12" y2="21" />
-        </svg>
-      )
-    },
-    {
-      title: 'Digital Solutions',
-      desc: 'Applications that solve real problems with clean functionality.',
-      glow: 'rgba(168, 85, 247, 0.15)', // Purple glow
-      tags: ['React 19', 'State API', 'REST JSON', 'Logical Flow'],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-        </svg>
-      )
-    },
-    {
-      title: 'Interactive Interfaces',
-      desc: 'User experiences focused on design and usability.',
-      glow: 'rgba(236, 72, 153, 0.15)', // Pink glow
-      tags: ['GSAP FX', 'Framer Motion', 'Micro-FX', 'UI/UX Design'],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-pink)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 14.7255 3.09032 17.1962 4.85857 19C5.02105 19.1625 5.0931 19.3908 5.04505 19.6172L4.8 20.8C4.71818 21.1856 5.01439 21.5 5.4 21.5H12Z" />
-          <circle cx="7.5" cy="10.5" r="1.5" fill="var(--accent-pink)" />
-          <circle cx="11.5" cy="7.5" r="1.5" fill="var(--accent-pink)" />
-          <circle cx="16.5" cy="9.5" r="1.5" fill="var(--accent-pink)" />
-          <circle cx="15.5" cy="14.5" r="1.5" fill="var(--accent-pink)" />
-        </svg>
-      )
-    },
-    {
-      title: 'Scalable Systems',
-      desc: 'Backend architectures built for growth and performance.',
-      glow: 'rgba(99, 102, 241, 0.15)', // Indigo glow
-      tags: ['Node.js', 'Express API', 'SQL/NoSQL', 'Scale Architecture'],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-indigo)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="3" />
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-        </svg>
-      )
-    },
-    {
-      title: 'Modern Applications',
-      desc: 'Full stack products using current technologies.',
-      glow: 'rgba(168, 85, 247, 0.15)', // Purple glow
-      tags: ['MERN Stack', 'Next.js SDK', 'Firebase Dev', 'Redux Store'],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-purple)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-        </svg>
-      )
-    },
-    {
-      title: 'Responsive Platforms',
-      desc: 'Experiences optimized for every screen size.',
-      glow: 'rgba(6, 182, 212, 0.15)', // Cyan glow
-      tags: ['Flex/Grid', 'Fluid Layouts', 'Mobile-First', 'Screen Adaptive'],
-      icon: (
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <circle cx="12" cy="12" r="10" />
-          <line x1="2" y1="12" x2="22" y2="12" />
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-        </svg>
-      )
-    }
-  ];
+  }, [isHovered, loading, services.length]);
 
   const handlePrev = () => {
-    setActiveIndex((prev) => (prev - 1 + servicesList.length) % servicesList.length);
+    if (services.length === 0) return;
+    setActiveIndex((prev) => (prev - 1 + services.length) % services.length);
   };
 
   const handleNext = () => {
-    setActiveIndex((prev) => (prev + 1) % servicesList.length);
+    if (services.length === 0) return;
+    setActiveIndex((prev) => (prev + 1) % services.length);
   };
 
   return (
@@ -294,90 +280,110 @@ export const Services = () => {
         </p>
       </div>
 
-      <div 
-        className="services-carousel-view reveal-on-scroll reveal-fade-left delay-100"
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
-      >
-        <div className="services-carousel-container">
-          {servicesList.map((service, idx) => {
-            const count = servicesList.length;
-            let offset = idx - activeIndex;
-
-            if (offset < -count / 2) offset += count;
-            if (offset > count / 2) offset -= count;
-
-            const absOffset = Math.abs(offset);
-            const isActive = offset === 0;
-
-            const translate3d = `translate3d(
-              calc(-50% + ${offset} * var(--carousel-spacing)), 
-              -50%, 
-              ${-absOffset * 110}px
-            )`;
-            const rotateY = `rotateY(${offset * -28}deg)`;
-            const scale = `scale(${1 - absOffset * 0.08})`;
-
-            const inlineStyle = {
-              transform: `${translate3d} ${rotateY} ${scale}`,
-              opacity: absOffset > 2 ? 0 : 1 - absOffset * 0.2,
-              zIndex: 10 - absOffset,
-              pointerEvents: isActive ? 'auto' : (absOffset === 1 ? 'auto' : 'none'),
-              '--card-glow-color': service.glow
-            };
-
-            return (
-              <div
-                key={idx}
-                className={`glass-panel service-carousel-card ${isActive ? 'active-card' : ''}`}
-                style={inlineStyle}
-                onClick={() => setActiveIndex(idx)}
-              >
-                <div className="service-icon-bg">
-                  {service.icon}
-                </div>
-                
-                <h3 className="service-title">{service.title}</h3>
-                <p className="service-card-desc" style={{ marginBottom: '16px' }}>{service.desc}</p>
-
-                <div className="service-tags">
-                  {service.tags.map((tag, tIdx) => (
-                    <span key={tIdx} className="service-tag">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+      {loading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '350px' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            border: '2px solid rgba(255, 255, 255, 0.1)',
+            borderTopColor: 'var(--accent-purple)',
+            animation: 'spin-slow 2s linear infinite'
+          }} />
+          <span style={{ marginTop: '16px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+            Loading offerings...
+          </span>
         </div>
+      ) : services.length > 0 ? (
+        <div 
+          className="services-carousel-view reveal-on-scroll reveal-fade-left delay-100"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          <div className="services-carousel-container">
+            {services.map((service, idx) => {
+              const count = services.length;
+              let offset = idx - activeIndex;
 
-        <div className="carousel-controls">
-          <button className="carousel-btn" onClick={handlePrev} aria-label="Previous service">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12"></line>
-              <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
-          </button>
+              if (offset < -count / 2) offset += count;
+              if (offset > count / 2) offset -= count;
 
-          <div className="carousel-dots">
-            {servicesList.map((_, idx) => (
-              <div
-                key={idx}
-                className={`carousel-dot ${idx === activeIndex ? 'active' : ''}`}
-                onClick={() => setActiveIndex(idx)}
-              />
-            ))}
+              const absOffset = Math.abs(offset);
+              const isActive = offset === 0;
+
+              const translate3d = `translate3d(
+                calc(-50% + ${offset} * var(--carousel-spacing)), 
+                -50%, 
+                ${-absOffset * 110}px
+              )`;
+              const rotateY = `rotateY(${offset * -28}deg)`;
+              const scale = `scale(${1 - absOffset * 0.08})`;
+
+              const inlineStyle = {
+                transform: `${translate3d} ${rotateY} ${scale}`,
+                opacity: absOffset > 2 ? 0 : 1 - absOffset * 0.2,
+                zIndex: 10 - absOffset,
+                pointerEvents: isActive ? 'auto' : (absOffset === 1 ? 'auto' : 'none'),
+                '--card-glow-color': service.glow
+              };
+
+              return (
+                <div
+                  key={idx}
+                  className={`glass-panel service-carousel-card ${isActive ? 'active-card' : ''}`}
+                  style={inlineStyle}
+                  onClick={() => setActiveIndex(idx)}
+                >
+                  <div className="service-icon-bg">
+                    {service.icon}
+                  </div>
+                  
+                  <h3 className="service-title">{service.title}</h3>
+                  <p className="service-card-desc" style={{ marginBottom: '16px' }}>{service.desc}</p>
+
+                  <div className="service-tags">
+                    {service.tags.map((tag, tIdx) => (
+                      <span key={tIdx} className="service-tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          <button className="carousel-btn" onClick={handleNext} aria-label="Next service">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </button>
+          <div className="carousel-controls">
+            <button className="carousel-btn" onClick={handlePrev} aria-label="Previous service">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
+
+            <div className="carousel-dots">
+              {services.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`carousel-dot ${idx === activeIndex ? 'active' : ''}`}
+                  onClick={() => setActiveIndex(idx)}
+                />
+              ))}
+            </div>
+
+            <button className="carousel-btn" onClick={handleNext} aria-label="Next service">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ textAlign: 'center', padding: '48px 0' }}>
+          <span style={{ color: 'var(--text-secondary)' }}>No offerings found.</span>
+        </div>
+      )}
     </section>
   );
 };
@@ -386,7 +392,8 @@ export const Services = () => {
 // 4. PROJECTS COMPONENT
 // ==========================================
 export const Projects = () => {
-  const displayedProjects = projectsList.slice(0, 3);
+  const { projects, loading } = useProjects();
+  const displayedProjects = projects.slice(0, 3);
 
   return (
     <section className="projects-section" id="projects">
@@ -403,59 +410,94 @@ export const Projects = () => {
       </div>
 
       <div className="projects-grid">
-        {displayedProjects.map((project, idx) => (
-          <a
-            href={`#/project-detail/${project.id}`}
-            key={idx}
-            className={`glass-panel project-card reveal-on-scroll ${idx % 3 === 0 ? 'reveal-fade-left' : idx % 3 === 2 ? 'reveal-fade-right' : 'reveal-fade-up'} delay-${((idx % 3) + 1) * 100}`}
-            style={{ 
-              '--project-glow': project.glow,
-              textDecoration: 'none',
-              color: 'inherit'
-            }}
-          >
-            {project.image && (
-              <div className="project-image-wrapper" style={{ width: '100%', height: '170px', borderRadius: '8px', overflow: 'hidden', marginBottom: '16px', position: 'relative' }}>
-                <img 
-                  src={project.image} 
-                  alt={project.title} 
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s ease' }} 
-                  className="project-card-image"
-                />
-              </div>
-            )}
-
-            <div style={{ width: '100%' }}>
-              <span className="project-category" style={{ fontSize: '10.5px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent-cyan)', fontWeight: '600' }}>
-                {project.category}
+        {loading ? (
+          Array.from({ length: 3 }).map((_, idx) => (
+            <div
+              key={idx}
+              className="glass-panel project-card"
+              style={{
+                minHeight: '380px',
+                opacity: 0.6,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignItems: 'center'
+              }}
+            >
+              <div
+                style={{
+                  width: '40px',
+                  height: '40px',
+                  borderRadius: '50%',
+                  border: '2px solid rgba(255, 255, 255, 0.1)',
+                  borderTopColor: 'var(--accent-purple)',
+                  animation: 'spin-slow 2s linear infinite'
+                }}
+              />
+              <span style={{ marginTop: '16px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+                Loading database...
               </span>
-              <h3 className="project-title" style={{ fontSize: '18px', marginTop: '6px', marginBottom: '8px' }}>
-                {project.title}
-              </h3>
-              <p className="project-desc-text" style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px', minHeight: '58px' }}>
-                {project.desc}
-              </p>
             </div>
+          ))
+        ) : displayedProjects.length > 0 ? (
+          displayedProjects.map((project, idx) => (
+            <a
+              href={`#/project-detail/${project.id}`}
+              key={idx}
+              className={`glass-panel project-card reveal-on-scroll ${idx % 3 === 0 ? 'reveal-fade-left' : idx % 3 === 2 ? 'reveal-fade-right' : 'reveal-fade-up'} delay-${((idx % 3) + 1) * 100}`}
+              style={{ 
+                '--project-glow': project.glow,
+                textDecoration: 'none',
+                color: 'inherit'
+              }}
+            >
+              {project.image && (
+                <div className="project-image-wrapper" style={{ width: '100%', height: '170px', borderRadius: '8px', overflow: 'hidden', marginBottom: '16px', position: 'relative' }}>
+                  <img 
+                    src={project.image} 
+                    alt={project.title} 
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s ease' }} 
+                    className="project-card-image"
+                  />
+                </div>
+              )}
 
-            <div className="project-tags-list" style={{ marginBottom: '16px' }}>
-              {project.tags.map((tag, tagIdx) => (
-                <span key={tagIdx} className="project-tag-item" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', padding: '2px 8px', borderRadius: '8px', fontSize: '10px' }}>
-                  {tag}
+              <div style={{ width: '100%' }}>
+                <span className="project-category" style={{ fontSize: '10.5px', textTransform: 'uppercase', letterSpacing: '1px', color: 'var(--accent-cyan)', fontWeight: '600' }}>
+                  {project.category}
                 </span>
-              ))}
-            </div>
+                <h3 className="project-title" style={{ fontSize: '18px', marginTop: '6px', marginBottom: '8px' }}>
+                  {project.title}
+                </h3>
+                <p className="project-desc-text" style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.5', marginBottom: '16px', minHeight: '58px' }}>
+                  {project.desc}
+                </p>
+              </div>
 
-            <div className="project-footer" style={{ width: '100%', marginTop: 'auto' }}>
-              <span className="project-link-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'white', fontSize: '14px', fontWeight: '600' }}>
-                Explore Project
-                <svg className="project-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease', opacity: 0.8 }}>
-                  <line x1="7" y1="17" x2="17" y2="7" />
-                  <polyline points="7 7 17 7 17 17" />
-                </svg>
-              </span>
-            </div>
-          </a>
-        ))}
+              <div className="project-tags-list" style={{ marginBottom: '16px' }}>
+                {project.tags.map((tag, tagIdx) => (
+                  <span key={tagIdx} className="project-tag-item" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', padding: '2px 8px', borderRadius: '8px', fontSize: '10px' }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div className="project-footer" style={{ width: '100%', marginTop: 'auto' }}>
+                <span className="project-link-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'white', fontSize: '14px', fontWeight: '600' }}>
+                  Explore Project
+                  <svg className="project-card-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transition: 'transform 0.3s ease', opacity: 0.8 }}>
+                    <line x1="7" y1="17" x2="17" y2="7" />
+                    <polyline points="7 7 17 7 17 17" />
+                  </svg>
+                </span>
+              </div>
+            </a>
+          ))
+        ) : (
+          <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '32px 0' }}>
+            <span style={{ color: 'var(--text-secondary)' }}>No projects found.</span>
+          </div>
+        )}
       </div>
 
       <div className="projects-actions" style={{ display: 'flex', justifyContent: 'center', marginTop: '48px' }}>
@@ -668,6 +710,221 @@ export const Cta = () => {
             </a>
           </div>
         </div>
+      </div>
+    </section>
+  );
+};
+
+export const Pricing = () => {
+  const plans = [
+    {
+      name: "Starter Website",
+      price: "₹4,999",
+      desc: "Perfect for personal portfolios, resumes, and landing pages.",
+      features: [
+        "1-Page Responsive Website",
+        "Modern UI Design",
+        "Contact Form",
+        "Mobile Friendly",
+        "Basic SEO Setup",
+        "Free Deployment Assistance"
+      ],
+      glow: "rgba(6, 182, 212, 0.15)", // Cyan
+      actionText: "Get Started"
+    },
+    {
+      name: "Business Website",
+      price: "₹9,999",
+      desc: "Ideal for businesses, startups, and service providers.",
+      features: [
+        "4-6 Responsive Pages",
+        "Modern Design",
+        "WhatsApp Integration",
+        "Contact Forms",
+        "Google Maps Integration",
+        "SEO Optimization",
+        "Fast Performance"
+      ],
+      glow: "rgba(168, 85, 247, 0.15)", // Purple
+      popular: true,
+      actionText: "Choose Business"
+    },
+    {
+      name: "Premium Web Solution",
+      price: "₹14,999+",
+      desc: "For businesses requiring advanced functionality.",
+      features: [
+        "Custom Design",
+        "Dynamic Pages",
+        "Admin Dashboard",
+        "Database Integration",
+        "Authentication System",
+        "API Integration",
+        "Advanced Animations",
+        "1 Month Support"
+      ],
+      glow: "rgba(236, 72, 153, 0.15)", // Pink
+      actionText: "Choose Premium"
+    },
+    {
+      name: "Custom Development",
+      price: "Custom Quote",
+      desc: "Need something unique?",
+      features: [
+        "Full Stack Applications",
+        "CRM Systems",
+        "Booking Platforms",
+        "E-commerce Websites",
+        "Custom Dashboards",
+        "API Development"
+      ],
+      glow: "rgba(99, 102, 241, 0.15)", // Indigo
+      actionText: "Request Quote"
+    }
+  ];
+
+  const whyChooseMe = [
+    {
+      icon: "⚡",
+      title: "Fast Delivery",
+      desc: "Quick turnaround times without compromising on code quality or standard design practices."
+    },
+    {
+      icon: "🎨",
+      title: "Modern & Professional Design",
+      desc: "Stunning, customized visuals tailored to make your brand stand out."
+    },
+    {
+      icon: "📱",
+      title: "Fully Responsive Development",
+      desc: "Optimized display and functionality across all mobile screens and desktop monitors."
+    },
+    {
+      icon: "🔒",
+      title: "Secure & Scalable Solutions",
+      desc: "Solid architectures designed to grow alongside your expanding client demands."
+    },
+    {
+      icon: "🚀",
+      title: "Performance Optimized",
+      desc: "Fast load speeds, search engine accessibility, and performance optimization."
+    },
+    {
+      icon: "💬",
+      title: "Ongoing Support",
+      desc: "Assistance and scaling guidance post-launch to keep your app running smoothly."
+    }
+  ];
+
+  return (
+    <section className="pricing-section" id="pricing">
+      <div className="section-header reveal-on-scroll reveal-fade-up">
+        <div className="services-badge">
+          <span className="sparkle-spark">✦</span> Services & Pricing
+        </div>
+        <h2 className="section-title">
+          Transparent <span className="text-gradient">Pricing</span>. Quality <span className="text-gradient">Solutions</span>.
+        </h2>
+        <p className="section-desc">
+          Choose the package that best fits your needs. Every project is built with performance, responsiveness, and modern design in mind.
+        </p>
+      </div>
+
+      <div className="pricing-grid reveal-on-scroll reveal-fade-up delay-100" style={{ marginBottom: '80px' }}>
+        {plans.map((plan, idx) => (
+          <div 
+            key={idx} 
+            className={`glass-panel pricing-card ${plan.popular ? 'popular-card' : ''}`}
+            style={{ '--tier-glow': plan.glow }}
+          >
+            {plan.popular && (
+              <span className="popular-badge">
+                <span className="sparkle-spark" style={{ marginRight: '4px' }}>✦</span> Most Popular
+              </span>
+            )}
+            <h3 className="tier-name" style={{ marginTop: plan.popular ? '20px' : '0' }}>{plan.name}</h3>
+            <div className="price-container">
+              <span className="price-value" style={{ fontSize: plan.price.length > 8 ? '32px' : '44px' }}>{plan.price}</span>
+            </div>
+            <p className="tier-desc">{plan.desc}</p>
+            <div className="divider"></div>
+            <ul className="tier-features-list">
+              {plan.features.map((feat, fIdx) => (
+                <li key={fIdx} className="feature-item">
+                  <svg className="feature-check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  {feat}
+                </li>
+              ))}
+            </ul>
+            <div style={{ marginTop: 'auto', width: '100%' }}>
+              <a 
+                href="#footer" 
+                className={plan.popular ? 'btn-primary' : 'btn-secondary'} 
+                style={{ width: '100%', justifyContent: 'center', display: 'flex', textDecoration: 'none' }}
+              >
+                {plan.actionText}
+              </a>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* WHY CHOOSE ME SECTION */}
+      <div className="section-header reveal-on-scroll reveal-fade-up" style={{ marginTop: '40px' }}>
+        <div className="services-badge">
+          <span className="sparkle-spark">✦</span> Core Values
+        </div>
+        <h2 className="section-title">
+          Why Choose <span className="text-gradient">Me</span>?
+        </h2>
+        <p className="section-desc">
+          I bridge the gap between creative visual designs and high-performance server architectures to ship production-ready applications.
+        </p>
+      </div>
+
+      <div className="values-grid reveal-on-scroll reveal-fade-up delay-100">
+        {whyChooseMe.map((item, idx) => (
+          <div 
+            key={idx} 
+            className="glass-panel" 
+            style={{ 
+              padding: '28px', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '12px',
+              transition: 'all 0.3s ease',
+              cursor: 'default'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.12)';
+              e.currentTarget.style.boxShadow = '0 10px 25px -10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(6, 182, 212, 0.08)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'none';
+              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
+          >
+            <div style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '10px',
+              background: 'rgba(255, 255, 255, 0.03)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '20px'
+            }}>
+              {item.icon}
+            </div>
+            <h3 style={{ fontSize: '17px', color: 'white', fontWeight: '600', margin: 0 }}>{item.title}</h3>
+            <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.5' }}>{item.desc}</p>
+          </div>
+        ))}
       </div>
     </section>
   );

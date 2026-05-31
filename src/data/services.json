@@ -1,0 +1,50 @@
+[
+  {
+    "id": 0,
+    "title": "Web Experiences",
+    "desc": "Modern websites designed for performance and responsiveness.",
+    "glow": "rgba(6, 182, 212, 0.15)",
+    "tags": ["HTML5/CSS3", "Modern JS", "Vite", "SEO"],
+    "iconName": "web"
+  },
+  {
+    "id": 1,
+    "title": "Digital Solutions",
+    "desc": "Applications that solve real problems with clean functionality.",
+    "glow": "rgba(168, 85, 247, 0.15)",
+    "tags": ["React 19", "State API", "REST JSON", "Logical Flow"],
+    "iconName": "solutions"
+  },
+  {
+    "id": 2,
+    "title": "Interactive Interfaces",
+    "desc": "User experiences focused on design and usability.",
+    "glow": "rgba(236, 72, 153, 0.15)",
+    "tags": ["GSAP FX", "Framer Motion", "Micro-FX", "UI/UX Design"],
+    "iconName": "interactive"
+  },
+  {
+    "id": 3,
+    "title": "Scalable Systems",
+    "desc": "Backend architectures built for growth and performance.",
+    "glow": "rgba(99, 102, 241, 0.15)",
+    "tags": ["Node.js", "Express API", "SQL/NoSQL", "Scale Architecture"],
+    "iconName": "scalable"
+  },
+  {
+    "id": 4,
+    "title": "Modern Applications",
+    "desc": "Full stack products using current technologies.",
+    "glow": "rgba(168, 85, 247, 0.15)",
+    "tags": ["MERN Stack", "Next.js SDK", "Firebase Dev", "Redux Store"],
+    "iconName": "modern"
+  },
+  {
+    "id": 5,
+    "title": "Responsive Platforms",
+    "desc": "Experiences optimized for every screen size.",
+    "glow": "rgba(6, 182, 212, 0.15)",
+    "tags": ["Flex/Grid", "Fluid Layouts", "Mobile-First", "Screen Adaptive"],
+    "iconName": "responsive"
+  }
+]

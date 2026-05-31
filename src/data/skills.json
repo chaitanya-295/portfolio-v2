@@ -1,0 +1,116 @@
+[
+  {
+    "id": 0,
+    "title": "Frontend",
+    "type": "frontend",
+    "color": "var(--accent-cyan)",
+    "glow": "rgba(6, 182, 212, 0.1)",
+    "iconName": "frontend",
+    "languages": [
+      {
+        "name": "React",
+        "level": "Framework",
+        "percentage": 90,
+        "logoName": "react"
+      },
+      {
+        "name": "React Native",
+        "level": "Framework",
+        "percentage": 80,
+        "logoName": "react"
+      },
+      {
+        "name": "Tailwind CSS",
+        "level": "Styling Framework",
+        "percentage": 90,
+        "logoName": "tailwind"
+      },
+      {
+        "name": "JavaScript",
+        "level": "Language",
+        "percentage": 85,
+        "logoName": "javascript"
+      },
+      {
+        "name": "TypeScript",
+        "level": "Language",
+        "percentage": 70,
+        "logoName": "typescript"
+      }
+    ]
+  },
+  {
+    "id": 1,
+    "title": "Backend",
+    "type": "backend",
+    "color": "var(--accent-purple)",
+    "glow": "rgba(168, 85, 247, 0.1)",
+    "iconName": "backend",
+    "languages": [
+      {
+        "name": "Node.js",
+        "level": "Runtime Environment",
+        "percentage": 90,
+        "logoName": "node"
+      },
+      {
+        "name": "Express.js",
+        "level": "Web Framework",
+        "percentage": 85,
+        "logoName": "express"
+      },
+      {
+        "name": "Python",
+        "level": "Language",
+        "percentage": 80,
+        "logoName": "python"
+      },
+      {
+        "name": "Django",
+        "level": "Web Framework",
+        "percentage": 75,
+        "logoName": "django"
+      },
+      {
+        "name": "SQL & Databases",
+        "level": "Relational Database",
+        "percentage": 85,
+        "logoName": "database"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "Tools",
+    "type": "tools",
+    "color": "var(--accent-indigo)",
+    "glow": "rgba(99, 102, 241, 0.1)",
+    "iconName": "tools",
+    "languages": [
+      {
+        "name": "Git & GitHub",
+        "level": "Version Control",
+        "percentage": 95,
+        "logoName": "git"
+      },
+      {
+        "name": "Docker",
+        "level": "Containerization",
+        "percentage": 80,
+        "logoName": "docker"
+      },
+      {
+        "name": "Linux / Terminal",
+        "level": "DevOps & OS",
+        "percentage": 85,
+        "logoName": "linux"
+      },
+      {
+        "name": "VS Code",
+        "level": "Code Editor",
+        "percentage": 90,
+        "logoName": "vscode"
+      }
+    ]
+  }
+]

@@ -12,14 +12,13 @@ const Navbar = () => {
         <li><a href="#home" onClick={() => setIsOpen(false)}>Home</a></li>
         <li><a href="#/about-detail" onClick={() => setIsOpen(false)}>About</a></li>
         <li><a href="#/projects" onClick={() => setIsOpen(false)}>Projects</a></li>
-        <li><a href="#services" onClick={() => setIsOpen(false)}>Services</a></li>
-        <li><a href="#blogs" onClick={() => setIsOpen(false)}>Blogs</a></li>
+        <li><a href="#/services" onClick={() => setIsOpen(false)}>Services</a></li>
         <li><a href="#footer" onClick={() => setIsOpen(false)}>Contacts</a></li>
         <li className="mobile-only-cta" style={{ width: '100%', marginTop: '8px' }}>
-          <a 
-            href="#footer" 
-            className="btn-secondary" 
-            onClick={() => setIsOpen(false)} 
+          <a
+            href="#footer"
+            className="btn-secondary"
+            onClick={() => setIsOpen(false)}
             style={{ padding: '10px 24px', fontSize: '14px', width: '100%', justifyContent: 'center', display: 'inline-flex' }}
           >
             Let's Talk
@@ -32,8 +31,8 @@ const Navbar = () => {
             Let's Talk
           </a>
         </div>
-        <button 
-          className={`nav-toggle-btn ${isOpen ? 'open' : ''}`} 
+        <button
+          className={`nav-toggle-btn ${isOpen ? 'open' : ''}`}
           onClick={() => setIsOpen(!isOpen)}
           aria-label="Toggle navigation menu"
         >

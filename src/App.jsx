@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import GalaxyBackground from './components/GalaxyBackground';
 import Navbar from './components/Navbar';
 import Hero, { About, Services, Projects, Testimonials, Cta } from './components/Hero';
+import ServicesPage from './components/ServicesPage';
 import AboutDetail from './components/AboutDetail';
 import ProjectDetail from './components/ProjectDetail';
 import ProjectsGallery from './components/ProjectsGallery';
+import AdminPanel from './components/AdminPanel';
 import Footer from './components/Footer';
 import './App.css';
 
@@ -23,6 +25,12 @@ function App() {
       } else if (hash === '#/projects') {
         setCurrentRoute('projects');
         window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (hash === '#/services') {
+        setCurrentRoute('services');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (hash === '#/admin' || hash === '#admin' || hash.includes('admin')) {
+        setCurrentRoute('admin');
+        window.scrollTo({ top: 0, behavior: 'instant' });
       } else {
         setCurrentRoute('home');
       }
@@ -35,7 +43,7 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (currentRoute !== 'home') return;
+    if (currentRoute !== 'home' && currentRoute !== 'services') return;
 
     // Timeout allows DOM nodes to fully mount before querySelecting
     const timeoutId = setTimeout(() => {
@@ -77,6 +85,10 @@ function App() {
         <ProjectDetail />
       ) : currentRoute === 'projects' ? (
         <ProjectsGallery />
+      ) : currentRoute === 'services' ? (
+        <ServicesPage />
+      ) : currentRoute === 'admin' ? (
+        <AdminPanel />
       ) : (
         <>
           {/* Central Cosmic Ring Section */}
