@@ -1,0 +1,103 @@
+{
+  "heroBadge": "Services & Pricing",
+  "heroTitle": "Transparent Pricing.",
+  "heroSubtitle": "Quality Solutions.",
+  "heroDesc": "Choose the perfect package for your business. Whether you need a simple landing page or a full-scale CMS, we have you covered.",
+  "plans": [
+    {
+      "name": "Starter",
+      "price": "₹5,999",
+      "desc": "Perfect for personal portfolios or landing pages.",
+      "features": [
+        "1-Page Responsive Website",
+        "Modern UI Design",
+        "Contact Form",
+        "Mobile Friendly",
+        "Basic SEO Setup",
+        "Free Deployment Assistance"
+      ],
+      "glow": "rgba(6, 182, 212, 0.18)",
+      "accentColor": "#06b6d4",
+      "actionText": "Get Started",
+      "popular": false
+    },
+    {
+      "name": "Business",
+      "price": "₹9,999",
+      "desc": "Ideal for small businesses and service providers.",
+      "features": [
+        "4-6 Responsive Pages",
+        "Modern Design",
+        "WhatsApp Integration",
+        "Contact Forms",
+        "Google Maps Integration",
+        "SEO Optimization",
+        "Fast Performance"
+      ],
+      "glow": "rgba(217, 70, 239, 0.25)",
+      "accentColor": "#d946ef",
+      "actionText": "Choose Business",
+      "popular": true
+    },
+    {
+      "name": "Premium",
+      "price": "₹14,999",
+      "desc": "Dynamic websites with content management capabilities.",
+      "features": [
+        "Custom Design",
+        "Dynamic Pages",
+        "Admin Dashboard",
+        "Database Integration",
+        "Authentication System",
+        "API Integration",
+        "Advanced Animations",
+        "1 Month Support"
+      ],
+      "glow": "rgba(236, 72, 153, 0.18)",
+      "accentColor": "#ec4899",
+      "actionText": "Choose Premium",
+      "popular": false
+    },
+    {
+      "name": "Custom Development",
+      "price": "Custom Quote",
+      "desc": "Need something unique? Let's build it together.",
+      "features": [
+        "Full Stack Applications",
+        "CRM Systems",
+        "Booking Platforms",
+        "E-commerce Websites",
+        "Custom Dashboards",
+        "API Development"
+      ],
+      "glow": "rgba(99, 102, 241, 0.18)",
+      "accentColor": "#6366f1",
+      "actionText": "Request Quote",
+      "popular": false
+    }
+  ],
+  "whyHireMe": [
+    {
+      "title": "Fast Delivery",
+      "desc": "Most websites are live within 3-5 days."
+    },
+    {
+      "title": "Mobile First",
+      "desc": "100% responsive designs that look great on phones."
+    },
+    {
+      "title": "SEO Ready",
+      "desc": "Built with best practices to help you rank on Google."
+    }
+  ],
+  "statusText": "Live & Healthy",
+  "statusProgress": 98,
+  "performanceScore": "98/100",
+  "speedIndex": "0.3s",
+  "seoScore": "100/100",
+  "securityScore": "SSL A+",
+  "ctaTitle": "Need Help Choosing a Plan?",
+  "ctaDesc": "Let's discuss your project requirements and find the perfect solution for your goals and budget.",
+  "whatsappLink": "https://wa.me/919730593429",
+  "emailAddress": "chaitanyakamble2005@gmail.com"
+}

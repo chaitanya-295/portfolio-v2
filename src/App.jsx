@@ -7,6 +7,8 @@ import AboutDetail from './components/AboutDetail';
 import ProjectDetail from './components/ProjectDetail';
 import ProjectsGallery from './components/ProjectsGallery';
 import AdminPanel from './components/AdminPanel';
+import BlogPage from './components/BlogPage';
+import BlogDetail from './components/BlogDetail';
 import Footer from './components/Footer';
 import './App.css';
 
@@ -27,6 +29,12 @@ function App() {
         window.scrollTo({ top: 0, behavior: 'instant' });
       } else if (hash === '#/services') {
         setCurrentRoute('services');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (hash.includes('blog-detail')) {
+        setCurrentRoute('blog-detail');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (hash === '#/blog' || hash === '#blog' || hash.includes('blog')) {
+        setCurrentRoute('blog');
         window.scrollTo({ top: 0, behavior: 'instant' });
       } else if (hash === '#/admin' || hash === '#admin' || hash.includes('admin')) {
         setCurrentRoute('admin');
@@ -87,6 +95,10 @@ function App() {
         <ProjectsGallery />
       ) : currentRoute === 'services' ? (
         <ServicesPage />
+      ) : currentRoute === 'blog' ? (
+        <BlogPage />
+      ) : currentRoute === 'blog-detail' ? (
+        <BlogDetail />
       ) : currentRoute === 'admin' ? (
         <AdminPanel />
       ) : (

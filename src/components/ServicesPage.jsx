@@ -1,115 +1,10 @@
 import { useEffect } from 'react';
+import { useServicesPage } from '../data/servicesPage';
 
 const ServicesPage = () => {
-  const plans = [
-    {
-      name: "Starter Website",
-      price: "₹4,999",
-      desc: "Perfect for personal portfolios, resumes, and landing pages.",
-      features: [
-        "1-Page Responsive Website",
-        "Modern UI Design",
-        "Contact Form",
-        "Mobile Friendly",
-        "Basic SEO Setup",
-        "Free Deployment Assistance"
-      ],
-      glow: "rgba(6, 182, 212, 0.18)",
-      accentColor: "#06b6d4",
-      actionText: "Get Started"
-    },
-    {
-      name: "Business Website",
-      price: "₹9,999",
-      desc: "Ideal for businesses, startups, and service providers.",
-      features: [
-        "4-6 Responsive Pages",
-        "Modern Design",
-        "WhatsApp Integration",
-        "Contact Forms",
-        "Google Maps Integration",
-        "SEO Optimization",
-        "Fast Performance"
-      ],
-      glow: "rgba(168, 85, 247, 0.18)",
-      accentColor: "#a855f7",
-      popular: true,
-      actionText: "Choose Business"
-    },
-    {
-      name: "Premium Web Solution",
-      price: "₹14,999+",
-      desc: "For businesses requiring advanced functionality.",
-      features: [
-        "Custom Design",
-        "Dynamic Pages",
-        "Admin Dashboard",
-        "Database Integration",
-        "Authentication System",
-        "API Integration",
-        "Advanced Animations",
-        "1 Month Support"
-      ],
-      glow: "rgba(236, 72, 153, 0.18)",
-      accentColor: "#ec4899",
-      actionText: "Choose Premium"
-    },
-    {
-      name: "Custom Development",
-      price: "Custom Quote",
-      desc: "Need something unique? Let's build it together.",
-      features: [
-        "Full Stack Applications",
-        "CRM Systems",
-        "Booking Platforms",
-        "E-commerce Websites",
-        "Custom Dashboards",
-        "API Development"
-      ],
-      glow: "rgba(99, 102, 241, 0.18)",
-      accentColor: "#6366f1",
-      actionText: "Request Quote"
-    }
-  ];
-
-  const whyChooseMe = [
-    {
-      icon: "⚡",
-      title: "Fast Delivery",
-      desc: "Quick turnaround times without compromising on code quality or standard design practices.",
-      color: "#f59e0b"
-    },
-    {
-      icon: "🎨",
-      title: "Modern & Professional Design",
-      desc: "Stunning, customized visuals tailored to make your brand stand out.",
-      color: "#ec4899"
-    },
-    {
-      icon: "📱",
-      title: "Fully Responsive Development",
-      desc: "Optimized display and functionality across all mobile screens and desktop monitors.",
-      color: "#06b6d4"
-    },
-    {
-      icon: "🔒",
-      title: "Secure & Scalable Solutions",
-      desc: "Solid architectures designed to grow alongside your expanding client demands.",
-      color: "#10b981"
-    },
-    {
-      icon: "🚀",
-      title: "Performance Optimized",
-      desc: "Fast load speeds, search engine accessibility, and performance optimization.",
-      color: "#a855f7"
-    },
-    {
-      icon: "💬",
-      title: "Ongoing Support",
-      desc: "Assistance and scaling guidance post-launch to keep your app running smoothly.",
-      color: "#6366f1"
-    }
-  ];
+  const { config } = useServicesPage();
+  const plans = config.plans || [];
+  const whyHireMe = config.whyHireMe || [];
 
   // Run reveal-on-scroll animations on mount
   useEffect(() => {
@@ -132,32 +27,32 @@ const ServicesPage = () => {
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', paddingTop: '100px', paddingBottom: '60px' }}>
+    <div style={{ minHeight: '100vh', paddingTop: '230px', paddingBottom: '60px' }}>
 
       {/* ─── Page Hero Banner ─── */}
       <div className="reveal-on-scroll reveal-fade-up" style={{ textAlign: 'center', marginBottom: '70px', padding: '0 24px' }}>
-        <div className="services-badge" style={{ display: 'inline-flex', marginBottom: '18px' }}>
-          <span className="sparkle-spark">✦</span> Services &amp; Pricing
+        <div className="pricing-badge-pill">
+          {config.heroBadge || "Services & Pricing"}
         </div>
         <h1 style={{
-          fontSize: 'clamp(2rem, 5vw, 3.4rem)',
-          fontWeight: '800',
+          fontSize: 'clamp(2.5rem, 6vw, 4.4rem)',
+          fontWeight: '850',
           color: 'white',
-          margin: '0 0 18px 0',
-          lineHeight: '1.15'
+          margin: '0 0 24px 0',
+          lineHeight: '1.15',
+          letterSpacing: '-1.5px'
         }}>
-          Transparent <span className="text-gradient">Pricing</span>.{' '}
-          Quality <span className="text-gradient">Solutions</span>.
+          {config.heroTitle || "Transparent Pricing."}<br />
+          <span className="text-gradient-pricing">{config.heroSubtitle || "Quality Solutions."}</span>
         </h1>
         <p style={{
-          fontSize: '16px',
-          color: 'var(--text-secondary)',
-          maxWidth: '560px',
+          fontSize: '17px',
+          color: '#9ca3af',
+          maxWidth: '650px',
           margin: '0 auto',
-          lineHeight: '1.7'
+          lineHeight: '1.6'
         }}>
-          Choose the package that best fits your needs. Every project is built
-          with performance, responsiveness, and modern design in mind.
+          {config.heroDesc || "Choose the perfect package for your business. Whether you need a simple landing page or a full-scale CMS, we have you covered."}
         </p>
       </div>
 
@@ -172,22 +67,29 @@ const ServicesPage = () => {
           >
             {plan.popular && (
               <span className="popular-badge">
-                <span className="sparkle-spark" style={{ marginRight: '4px' }}>✦</span>
-                Most Popular
+                MOST POPULAR
               </span>
             )}
-            <h3 className="tier-name" style={{ marginTop: plan.popular ? '20px' : '0', color: plan.accentColor }}>
-              {plan.name}
-            </h3>
-            <div className="price-container">
-              <span className="price-value" style={{ fontSize: plan.price.length > 8 ? '32px' : '44px' }}>
-                {plan.price}
-              </span>
+
+            {/* Card Header Content - Centered */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', marginBottom: '16px' }}>
+              <h3 className="tier-name" style={{ color: 'white', fontSize: '20px', fontWeight: '600', margin: plan.popular ? '15px 0 10px 0' : '0 0 10px 0' }}>
+                {plan.name}
+              </h3>
+              <div className="price-container" style={{ margin: '0 0 12px 0' }}>
+                <span className="price-value" style={{ fontSize: '40px', fontWeight: '750', color: 'white' }}>
+                  {plan.price}
+                </span>
+              </div>
+              <p className="tier-desc" style={{ color: '#9ca3af', fontSize: '13.5px', lineHeight: '1.5', margin: '0', minHeight: '40px' }}>
+                {plan.desc}
+              </p>
             </div>
-            <p className="tier-desc">{plan.desc}</p>
-            <div className="divider" style={{ borderColor: plan.accentColor + '30' }} />
+
+            <div className="divider" style={{ borderColor: plan.accentColor + '30', width: '100%' }} />
+
             <ul className="tier-features-list">
-              {plan.features.map((feat, fIdx) => (
+              {(plan.features || []).map((feat, fIdx) => (
                 <li key={fIdx} className="feature-item">
                   <svg className="feature-check" width="16" height="16" viewBox="0 0 24 24"
                     fill="none" stroke={plan.accentColor} strokeWidth="3"
@@ -210,64 +112,105 @@ const ServicesPage = () => {
           </div>
         ))}
       </div>
-
-      {/* ─── Why Choose Me ─── */}
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 24px' }}>
-        <div className="section-header reveal-on-scroll reveal-fade-up" style={{ marginBottom: '48px' }}>
-          <div className="services-badge" style={{ display: 'inline-flex' }}>
-            <span className="sparkle-spark">✦</span> Core Values
-          </div>
-          <h2 className="section-title">
-            Why Choose <span className="text-gradient">Me</span>?
-          </h2>
-          <p className="section-desc">
-            I bridge the gap between creative visual designs and high-performance server
-            architectures to ship production-ready applications.
-          </p>
-        </div>
-
-        <div className="values-grid reveal-on-scroll reveal-fade-up delay-100">
-          {whyChooseMe.map((item, idx) => (
-            <div
-              key={idx}
-              className="glass-panel"
-              style={{
-                padding: '28px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-                transition: 'all 0.3s ease',
-                cursor: 'default',
-                borderTop: `2px solid ${item.color}30`
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-5px)';
-                e.currentTarget.style.borderTopColor = item.color + '80';
-                e.currentTarget.style.boxShadow = `0 12px 30px -10px rgba(0,0,0,0.5), 0 0 20px ${item.color}15`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'none';
-                e.currentTarget.style.borderTopColor = item.color + '30';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
-            >
-              <div style={{
-                width: '46px',
-                height: '46px',
-                borderRadius: '12px',
-                background: `${item.color}15`,
-                border: `1px solid ${item.color}30`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '22px'
-              }}>
-                {item.icon}
-              </div>
-              <h3 style={{ fontSize: '17px', color: 'white', fontWeight: '600', margin: 0 }}>{item.title}</h3>
-              <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.6' }}>{item.desc}</p>
+      {/* ─── Why Hire Me Section ─── */}
+      <div className="reveal-on-scroll reveal-fade-up delay-100" style={{ maxWidth: '1200px', margin: '0 auto 60px auto', padding: '0 24px' }}>
+        <div className="why-hire-me-container">
+          {/* Left Column */}
+          <div className="why-hire-me-info">
+            <h2 className="why-hire-me-title">Why hire me?</h2>
+            
+            <div className="why-hire-me-list">
+              {whyHireMe.map((item, idx) => (
+                <div key={idx} className="why-hire-me-item">
+                  <div className="why-hire-me-icon-badge">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00f0ff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="why-hire-me-item-title">{item.title}</h4>
+                    <p className="why-hire-me-item-desc">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* Right Column */}
+          <div className="why-hire-me-status">
+            <div className="project-status-card">
+              <div className="project-status-header">
+                <div className="status-globe-badge">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                </div>
+                <div className="status-header-text">
+                  <span className="status-label">Project Status</span>
+                  <span className="status-value">
+                    <span className="status-dot"></span>{config.statusText || "Live & Healthy"}
+                  </span>
+                </div>
+              </div>
+              
+              <div className="status-progress-container">
+                <div className="status-progress-track">
+                  <div className="status-progress-fill" style={{ width: `${config.statusProgress || 98}%` }}></div>
+                </div>
+              </div>
+              
+              <div className="status-metrics-row">
+                <span className="metric-label">Performance Score</span>
+                <span className="metric-value">{config.performanceScore || "98/100"}</span>
+              </div>
+              
+              <div className="status-metrics-divider"></div>
+              
+              <div className="status-sub-metrics">
+                <div className="sub-metric-item">
+                  <span className="sub-metric-label">Speed Index</span>
+                  <span className="sub-metric-value text-glow-cyan">{config.speedIndex || "0.3s"}</span>
+                </div>
+                <div className="sub-metric-item">
+                  <span className="sub-metric-label">SEO Score</span>
+                  <span className="sub-metric-value text-glow-green">{config.seoScore || "100/100"}</span>
+                </div>
+                <div className="sub-metric-item">
+                  <span className="sub-metric-label">Security</span>
+                  <span className="sub-metric-value text-glow-purple">{config.securityScore || "SSL A+"}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ─── CTA Section ─── */}
+      <div className="reveal-on-scroll reveal-fade-up delay-100" style={{ maxWidth: '1200px', margin: '60px auto 40px auto', padding: '0 24px' }}>
+        <div className="services-cta-panel">
+          <div className="services-cta-content">
+            <h2 className="services-cta-title">{config.ctaTitle || "Need Help Choosing a Plan?"}</h2>
+            <p className="services-cta-desc">
+              {config.ctaDesc || "Let's discuss your project requirements and find the perfect solution for your goals and budget."}
+            </p>
+          </div>
+          <div className="services-cta-actions">
+            <a href={config.whatsappLink || "https://wa.me/919730593429"} target="_blank" rel="noopener noreferrer" className="btn-primary cta-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.897 0c3.183.001 6.177 1.24 8.428 3.493 2.25 2.253 3.487 5.25 3.484 8.435-.005 6.573-5.33 11.897-11.9 11.897-1.998-.001-3.957-.502-5.707-1.458L0 24zm6.549-3.722c1.652.98 3.516 1.5 5.434 1.5 5.498 0 9.972-4.475 9.976-9.974.001-2.664-1.034-5.17-2.915-7.054C17.26 2.863 14.76 1.828 12.09 1.828 6.596 1.828 2.12 6.304 2.116 11.804c-.001 1.944.506 3.844 1.47 5.514l-.995 3.637 3.73-.977zm11.367-7.56c-.32-.16-1.89-.93-2.185-1.04-.294-.11-.51-.16-.723.16-.214.32-.828 1.04-1.014 1.25-.187.21-.374.24-.694.08-.32-.16-1.353-.5-2.578-1.593-.952-.85-1.594-1.9-1.782-2.22-.187-.32-.02-.49.14-.65.144-.144.32-.37.48-.56.16-.18.214-.3.32-.5.11-.2.05-.37-.03-.53-.08-.16-.723-1.74-.99-2.388-.26-.625-.526-.54-.723-.55-.186-.01-.4-.01-.613-.01-.214 0-.56.08-.854.4-.294.32-1.123 1.1-1.123 2.68 0 1.58 1.15 3.11 1.31 3.33.16.22 2.264 3.457 5.485 4.85.766.33 1.363.528 1.83.676.77.244 1.47.21 2.025.128.619-.092 1.89-.77 2.152-1.48.26-.71.26-1.32.18-1.45-.08-.13-.3-.21-.62-.37z"/>
+              </svg>
+              Get a Free Consultation
+            </a>
+            <a href={`mailto:${config.emailAddress || "chaitanyakamble2005@gmail.com"}`} className="btn-secondary cta-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              Send an Email
+            </a>
+          </div>
         </div>
       </div>
 

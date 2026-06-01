@@ -4,6 +4,8 @@ import { useProjects, updateProjectsList, ProjectIcon, assetMap } from '../data/
 import { useCertifications, updateCertificationsList } from '../data/certifications';
 import { useSkills, updateSkillsList, CategoryIcon, SkillLogo } from '../data/skills';
 import { useProfile, updateProfile } from '../data/profile';
+import { useServicesPage, updateServicesPage } from '../data/servicesPage';
+import { useBlogPosts, updateBlogPostsList } from '../data/blogPosts';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import './AdminPanel.css';
@@ -14,6 +16,14 @@ const GLOW_PRESETS = [
   { name: 'Purple', value: 'rgba(168, 85, 247, 0.15)', color: 'var(--accent-purple)' },
   { name: 'Pink', value: 'rgba(236, 72, 153, 0.15)', color: 'var(--accent-pink)' },
   { name: 'Indigo', value: 'rgba(99, 102, 241, 0.15)', color: 'var(--accent-indigo)' }
+];
+
+const PLAN_COLOR_PRESETS = [
+  { name: 'Cyan', color: '#06b6d4', glowBase: 'rgba(6, 182, 212, 0.18)', glowPopular: 'rgba(6, 182, 212, 0.25)' },
+  { name: 'Purple', color: '#a855f7', glowBase: 'rgba(168, 85, 247, 0.18)', glowPopular: 'rgba(168, 85, 247, 0.25)' },
+  { name: 'Pink', color: '#ec4899', glowBase: 'rgba(236, 72, 153, 0.18)', glowPopular: 'rgba(236, 72, 153, 0.25)' },
+  { name: 'Indigo', color: '#6366f1', glowBase: 'rgba(99, 102, 241, 0.18)', glowPopular: 'rgba(99, 102, 241, 0.25)' },
+  { name: 'Magenta', color: '#d946ef', glowBase: 'rgba(217, 70, 239, 0.18)', glowPopular: 'rgba(217, 70, 239, 0.25)' }
 ];
 
 // List of popular tech logos for selection and search suggestions
@@ -295,6 +305,24 @@ function LogoSearchSelector({ value, onChange }) {
   );
 }
 
+const hexToRgba = (hex, alpha = 0.18) => {
+  if (!hex) return '';
+  const cleanHex = hex.replace('#', '');
+  if (cleanHex.length !== 6 && cleanHex.length !== 3) return '';
+  let r, g, b;
+  if (cleanHex.length === 6) {
+    r = parseInt(cleanHex.substring(0, 2), 16);
+    g = parseInt(cleanHex.substring(2, 4), 16);
+    b = parseInt(cleanHex.substring(4, 6), 16);
+  } else {
+    r = parseInt(cleanHex[0] + cleanHex[0], 16);
+    g = parseInt(cleanHex[1] + cleanHex[1], 16);
+    b = parseInt(cleanHex[2] + cleanHex[2], 16);
+  }
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return '';
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
+
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState('services'); // 'services', 'projects', or 'certifications'
   const { services, loading: servicesLoading } = useServices();
@@ -302,6 +330,8 @@ export default function AdminPanel() {
   const { certifications, loading: certificationsLoading } = useCertifications();
   const { skills, loading: skillsLoading } = useSkills();
   const { profile, loading: profileLoading } = useProfile();
+  const { config: servicesPageConfig, loading: servicesPageLoading } = useServicesPage();
+  const { blogPosts, loading: blogsLoading } = useBlogPosts();
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [isCreateMode, setIsCreateMode] = useState(false);
@@ -325,6 +355,24 @@ export default function AdminPanel() {
     { value: '', label: '' }
   ]);
   const [profSkills, setProfSkills] = useState([]);
+
+  // Form Fields State (Services Page)
+  const [spHeroBadge, setSpHeroBadge] = useState('');
+  const [spHeroTitle, setSpHeroTitle] = useState('');
+  const [spHeroSubtitle, setSpHeroSubtitle] = useState('');
+  const [spHeroDesc, setSpHeroDesc] = useState('');
+  const [spPlans, setSpPlans] = useState([]);
+  const [spWhyHire, setSpWhyHire] = useState([]);
+  const [spStatusText, setSpStatusText] = useState('');
+  const [spStatusProgress, setSpStatusProgress] = useState(98);
+  const [spPerformanceScore, setSpPerformanceScore] = useState('');
+  const [spSpeedIndex, setSpSpeedIndex] = useState('');
+  const [spSeoScore, setSpSeoScore] = useState('');
+  const [spSecurityScore, setSpSecurityScore] = useState('');
+  const [spCtaTitle, setSpCtaTitle] = useState('');
+  const [spCtaDesc, setSpCtaDesc] = useState('');
+  const [spWhatsappLink, setSpWhatsappLink] = useState('');
+  const [spEmailAddress, setSpEmailAddress] = useState('');
 
   // Form Fields State (Services)
   const [sTitle, setSTitle] = useState('');
@@ -378,6 +426,17 @@ export default function AdminPanel() {
   const [skGlow, setSkGlow] = useState('rgba(6, 182, 212, 0.15)');
   const [skIconName, setSkIconName] = useState('frontend');
   const [skLanguages, setSkLanguages] = useState([]);
+
+  // Form Fields State (Blogs)
+  const [bTitle, setBTitle] = useState('');
+  const [bCategory, setBCategory] = useState('Creative Dev');
+  const [bDate, setBDate] = useState('');
+  const [bReadTime, setBReadTime] = useState('5 min read');
+  const [bDesc, setBDesc] = useState('');
+  const [bImage, setBImage] = useState('');
+  const [bTagsInput, setBTagsInput] = useState('');
+  const [bGlow, setBGlow] = useState('rgba(6, 182, 212, 0.18)');
+  const [bContent, setBContent] = useState([]);
 
   // UI Status State
   const [isSaving, setIsSaving] = useState(false);
@@ -625,6 +684,63 @@ export default function AdminPanel() {
       }
     }
   }, [profile, activeTab]);
+
+  // Sync form states with Services Page config
+  useEffect(() => {
+    if (activeTab === 'services-page') {
+      if (servicesPageConfig) {
+        setSpHeroBadge(servicesPageConfig.heroBadge || '');
+        setSpHeroTitle(servicesPageConfig.heroTitle || '');
+        setSpHeroSubtitle(servicesPageConfig.heroSubtitle || '');
+        setSpHeroDesc(servicesPageConfig.heroDesc || '');
+        setSpPlans(servicesPageConfig.plans ? servicesPageConfig.plans.map(p => ({ ...p })) : []);
+        setSpWhyHire(servicesPageConfig.whyHireMe ? servicesPageConfig.whyHireMe.map(w => ({ ...w })) : []);
+        setSpStatusText(servicesPageConfig.statusText || '');
+        setSpStatusProgress(servicesPageConfig.statusProgress || 98);
+        setSpPerformanceScore(servicesPageConfig.performanceScore || '');
+        setSpSpeedIndex(servicesPageConfig.speedIndex || '');
+        setSpSeoScore(servicesPageConfig.seoScore || '');
+        setSpSecurityScore(servicesPageConfig.securityScore || '');
+        setSpCtaTitle(servicesPageConfig.ctaTitle || '');
+        setSpCtaDesc(servicesPageConfig.ctaDesc || '');
+        setSpWhatsappLink(servicesPageConfig.whatsappLink || '');
+        setSpEmailAddress(servicesPageConfig.emailAddress || '');
+        setSuccessMsg('');
+        setErrorMsg('');
+      }
+    }
+  }, [servicesPageConfig, activeTab]);
+
+  // Sync form states with selected blog post
+  useEffect(() => {
+    if (activeTab === 'blogs') {
+      if (selectedItem && !isCreateMode) {
+        setBTitle(selectedItem.title || '');
+        setBCategory(selectedItem.category || 'Creative Dev');
+        setBDate(selectedItem.date || '');
+        setBReadTime(selectedItem.readTime || '5 min read');
+        setBDesc(selectedItem.desc || '');
+        setBImage(selectedItem.imageFile || selectedItem.image || '');
+        setBTagsInput(selectedItem.tags ? selectedItem.tags.join(', ') : '');
+        setBGlow(selectedItem.glow || 'rgba(6, 182, 212, 0.18)');
+        setBContent(selectedItem.content || []);
+        setSuccessMsg('');
+        setErrorMsg('');
+      } else if (isCreateMode) {
+        setBTitle('');
+        setBCategory('Creative Dev');
+        setBDate(new Date().toLocaleDateString('en-US', { month: 'long', day: '2-digit', year: 'numeric' }));
+        setBReadTime('5 min read');
+        setBDesc('');
+        setBImage('');
+        setBTagsInput('');
+        setBGlow('rgba(6, 182, 212, 0.18)');
+        setBContent([{ type: 'paragraph', text: '' }]);
+        setSuccessMsg('');
+        setErrorMsg('');
+      }
+    }
+  }, [selectedItem, isCreateMode, activeTab]);
 
   const handleStartCreate = () => {
     setIsCreateMode(true);
@@ -1052,6 +1168,143 @@ export default function AdminPanel() {
     setSuccessMsg('Profile settings updated successfully!');
   };
 
+  const handleSaveServicesPage = async () => {
+    const updatedConfig = {
+      heroBadge: spHeroBadge,
+      heroTitle: spHeroTitle,
+      heroSubtitle: spHeroSubtitle,
+      heroDesc: spHeroDesc,
+      plans: spPlans,
+      whyHireMe: spWhyHire,
+      statusText: spStatusText,
+      statusProgress: parseInt(spStatusProgress) || 0,
+      performanceScore: spPerformanceScore,
+      speedIndex: spSpeedIndex,
+      seoScore: spSeoScore,
+      securityScore: spSecurityScore,
+      ctaTitle: spCtaTitle,
+      ctaDesc: spCtaDesc,
+      whatsappLink: spWhatsappLink,
+      emailAddress: spEmailAddress
+    };
+
+    if (db) {
+      await setDoc(doc(db, 'services_page', 'config'), updatedConfig);
+    }
+    updateServicesPage(updatedConfig);
+    setSuccessMsg('Services page settings updated successfully!');
+  };
+
+  const handleBlogImageUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 1.5 * 1024 * 1024) {
+      alert("Image is too large. Please select an image smaller than 1.5MB for performance optimization.");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (uploadEvent) => {
+      const base64 = uploadEvent.target.result;
+      setBImage(base64);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAddBlock = (type) => {
+    setBContent([...bContent, { type, text: '', code: '', language: 'javascript' }]);
+  };
+
+  const handleRemoveBlock = (index) => {
+    setBContent(bContent.filter((_, idx) => idx !== index));
+  };
+
+  const handleBlockChange = (index, field, value) => {
+    const updated = bContent.map((block, idx) => {
+      if (idx === index) {
+        return { ...block, [field]: value };
+      }
+      return block;
+    });
+    setBContent(updated);
+  };
+
+  const handleMoveBlock = (index, direction) => {
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === bContent.length - 1) return;
+    
+    const targetIdx = direction === 'up' ? index - 1 : index + 1;
+    const updated = [...bContent];
+    const temp = updated[index];
+    updated[index] = updated[targetIdx];
+    updated[targetIdx] = temp;
+    setBContent(updated);
+  };
+
+  const handleSaveBlog = async () => {
+    const tags = bTagsInput.split(',').map(t => t.trim()).filter(t => t !== '');
+    let updatedRawList = [];
+
+    const blogData = {
+      title: bTitle,
+      category: bCategory,
+      date: bDate,
+      readTime: bReadTime,
+      desc: bDesc,
+      image: bImage,
+      glow: bGlow,
+      accentColor: PLAN_COLOR_PRESETS.find(p => p.glowBase === bGlow || p.glowPopular === bGlow)?.color || '#06b6d4',
+      tags,
+      content: bContent
+    };
+
+    if (isCreateMode) {
+      const baseSlug = bTitle.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const uniqueId = baseSlug || `blog-${Date.now()}`;
+      
+      const newBlog = {
+        id: uniqueId,
+        ...blogData
+      };
+
+      updatedRawList = [...blogPosts, newBlog];
+
+      if (db) {
+        await setDoc(doc(db, 'blogs', uniqueId), newBlog);
+      }
+      setSuccessMsg('Blog post created successfully!');
+    } else {
+      const updatedBlog = {
+        ...selectedItem,
+        ...blogData
+      };
+
+      updatedRawList = blogPosts.map(b => b.id === selectedItem.id ? updatedBlog : b);
+
+      if (db) {
+        await setDoc(doc(db, 'blogs', selectedItem.id), blogData);
+      }
+      setSuccessMsg('Blog post updated successfully!');
+    }
+
+    const cleanBlogsForStorage = (list) => {
+      return list.map(b => {
+        const clean = { ...b };
+        if (clean.imageFile) {
+          clean.image = clean.imageFile;
+        }
+        delete clean.imageFile;
+        return clean;
+      });
+    };
+
+    const cleaned = cleanBlogsForStorage(updatedRawList);
+    updateBlogPostsList(cleaned);
+    setIsCreateMode(false);
+    setSelectedItem(null);
+  };
+
   const handleSave = async (e) => {
     e.preventDefault();
     setIsSaving(true);
@@ -1063,6 +1316,8 @@ export default function AdminPanel() {
         await handleSaveService();
       } else if (activeTab === 'projects') {
         await handleSaveProject();
+      } else if (activeTab === 'blogs') {
+        await handleSaveBlog();
       } else if (activeTab === 'certifications') {
         await handleSaveCertification();
       } else if (activeTab === 'tech-stack') {
@@ -1071,6 +1326,8 @@ export default function AdminPanel() {
         await handleSaveEducation();
       } else if (activeTab === 'experience') {
         await handleSaveExperience();
+      } else if (activeTab === 'services-page') {
+        await handleSaveServicesPage();
       } else {
         await handleSaveProfile();
       }
@@ -1150,6 +1407,24 @@ export default function AdminPanel() {
         }
         updateProfile(updatedProfile);
         setSuccessMsg('Experience item deleted successfully!');
+      } else if (activeTab === 'blogs') {
+        const updatedRawList = blogPosts.filter(b => b.id !== selectedItem.id);
+        if (db) {
+          await deleteDoc(doc(db, 'blogs', selectedItem.id));
+        }
+        const cleanBlogsForStorage = (list) => {
+          return list.map(b => {
+            const clean = { ...b };
+            if (clean.imageFile) {
+              clean.image = clean.imageFile;
+            }
+            delete clean.imageFile;
+            return clean;
+          });
+        };
+        const cleaned = cleanBlogsForStorage(updatedRawList);
+        updateBlogPostsList(cleaned);
+        setSuccessMsg('Blog post deleted successfully!');
       } else {
         const updatedRawList = skills.filter(s => s.id !== selectedItem.id);
         if (db) {
@@ -1172,8 +1447,8 @@ export default function AdminPanel() {
     }
   };
 
-  const activeGlow = activeTab === 'services' ? sGlow : activeTab === 'projects' ? pGlow : activeTab === 'certifications' ? cGlow : activeTab === 'education' ? eduGlow : activeTab === 'experience' ? expGlow : skGlow;
-  const activeColor = GLOW_PRESETS.find(p => p.value === activeGlow)?.color || 'var(--accent-purple)';
+  const activeGlow = activeTab === 'services' ? sGlow : activeTab === 'projects' ? pGlow : activeTab === 'blogs' ? bGlow : activeTab === 'certifications' ? cGlow : activeTab === 'education' ? eduGlow : activeTab === 'experience' ? expGlow : activeTab === 'services-page' ? 'rgba(6, 182, 212, 0.15)' : skGlow;
+  const activeColor = GLOW_PRESETS.find(p => p.value === activeGlow)?.color || 'var(--accent-cyan)';
 
   return (
     <div className="admin-container">
@@ -1191,13 +1466,20 @@ export default function AdminPanel() {
       </div>
 
       {/* Tab Switcher */}
-      <div className="tabs-container" style={{ marginBottom: '40px', maxWidth: '800px', margin: '0 auto 40px auto', display: 'flex', gap: '10px' }}>
+      <div className="tabs-container" style={{ marginBottom: '40px', maxWidth: '900px', margin: '0 auto 40px auto', display: 'flex', gap: '8px' }}>
         <button
           className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`}
           onClick={() => { setActiveTab('services'); handleCancel(); }}
           style={{ flex: 1 }}
         >
           Services
+        </button>
+        <button
+          className={`tab-btn ${activeTab === 'services-page' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('services-page'); setSelectedItem({ id: 'services-page' }); setIsCreateMode(false); }}
+          style={{ flex: 1.2 }}
+        >
+          Services Page
         </button>
         <button
           className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
@@ -1235,6 +1517,13 @@ export default function AdminPanel() {
           Experience
         </button>
         <button
+          className={`tab-btn ${activeTab === 'blogs' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('blogs'); handleCancel(); }}
+          style={{ flex: 1 }}
+        >
+          Blogs
+        </button>
+        <button
           className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => { setActiveTab('profile'); setSelectedItem({ id: 'profile' }); setIsCreateMode(false); }}
           style={{ flex: 1 }}
@@ -1246,19 +1535,68 @@ export default function AdminPanel() {
       <div className="admin-layout-grid">
         {/* Left Column: Items List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {activeTab !== 'profile' && (
+          {activeTab !== 'profile' && activeTab !== 'services-page' && (
             <button 
               onClick={handleStartCreate}
               className={`btn-primary ${isCreateMode ? 'active' : ''}`}
               style={{ width: '100%', justifyContent: 'center', padding: '14px', borderRadius: '14px' }}
               disabled={isSaving || isDeleting}
             >
-              + Add New {activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'certifications' ? 'Certification' : activeTab === 'tech-stack' ? 'Tech Category' : activeTab === 'education' ? 'Education' : activeTab === 'experience' ? 'Experience' : 'Item'}
+              + Add New {activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'blogs' ? 'Blog' : activeTab === 'certifications' ? 'Certification' : activeTab === 'tech-stack' ? 'Tech Category' : activeTab === 'education' ? 'Education' : activeTab === 'experience' ? 'Experience' : 'Item'}
             </button>
           )}
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxHeight: '550px', overflowY: 'auto', paddingRight: '4px' }}>
-            {activeTab === 'services' ? (
+            {activeTab === 'blogs' ? (
+              blogsLoading ? (
+                <div style={{ color: 'var(--text-secondary)', padding: '20px', textAlign: 'center' }}>Loading Blogs...</div>
+              ) : blogPosts.length === 0 ? (
+                <div style={{ color: 'var(--text-secondary)', padding: '20px', textAlign: 'center' }}>No Blogs configured.</div>
+              ) : (
+                blogPosts.map(b => {
+                  const accentColor = PLAN_COLOR_PRESETS.find(p => p.glowBase === b.glow || p.glowPopular === b.glow)?.color || '#06b6d4';
+                  return (
+                    <div 
+                      key={b.id} 
+                      onClick={() => handleSelectItem(b)}
+                      className="glass-panel"
+                      style={{
+                        padding: '16px 20px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        transition: 'all 0.3s ease',
+                        border: (selectedItem?.id === b.id && !isCreateMode) ? `1px solid ${accentColor}` : '1px solid rgba(255, 255, 255, 0.08)',
+                        boxShadow: (selectedItem?.id === b.id && !isCreateMode) ? `0 0 15px ${b.glow}` : 'none',
+                        background: (selectedItem?.id === b.id && !isCreateMode) ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.01)'
+                      }}
+                    >
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '8px',
+                        background: `rgba(${b.glow.includes('6, 182, 212') ? '6, 182, 212' : b.glow.includes('168, 85, 247') ? '168, 85, 247' : b.glow.includes('236, 72, 153') ? '236, 72, 153' : '99, 102, 241'}, 0.1)`,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: accentColor,
+                        flexShrink: 0
+                      }}>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                          <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5v-15z" />
+                        </svg>
+                      </div>
+                      <div style={{ overflow: 'hidden' }}>
+                        <h4 style={{ color: 'white', margin: '0 0 4px 0', fontSize: '14.5px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{b.title}</h4>
+                        <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '12px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{b.category} • {b.readTime}</p>
+                      </div>
+                    </div>
+                  );
+                })
+              )
+            ) : activeTab === 'services' ? (
               servicesLoading ? (
                 <div style={{ color: 'var(--text-secondary)', padding: '20px', textAlign: 'center' }}>Loading Services...</div>
               ) : services.length === 0 ? (
@@ -1534,6 +1872,47 @@ export default function AdminPanel() {
                   );
                 })
               )
+            ) : activeTab === 'services-page' ? (
+              servicesPageLoading ? (
+                <div style={{ color: 'var(--text-secondary)', padding: '20px', textAlign: 'center' }}>Loading Services Page...</div>
+              ) : (
+                <div 
+                  onClick={() => setSelectedItem({ id: 'services-page' })}
+                  className="glass-panel"
+                  style={{
+                    padding: '16px 20px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    transition: 'all 0.3s ease',
+                    border: (selectedItem?.id === 'services-page') ? '1px solid var(--accent-cyan)' : '1px solid rgba(255, 255, 255, 0.08)',
+                    boxShadow: (selectedItem?.id === 'services-page') ? '0 0 15px rgba(6, 182, 212, 0.15)' : 'none',
+                    background: (selectedItem?.id === 'services-page') ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.01)'
+                  }}
+                >
+                  <div style={{
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '8px',
+                    background: 'rgba(6, 182, 212, 0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'var(--accent-cyan)',
+                    flexShrink: 0
+                  }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                      <line x1="9" y1="3" x2="9" y2="21" />
+                    </svg>
+                  </div>
+                  <div style={{ overflow: 'hidden' }}>
+                    <h4 style={{ color: 'white', margin: '0 0 4px 0', fontSize: '14.5px' }}>Services Page</h4>
+                    <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '12px' }}>Hero, Plans, Live Status & CTA</p>
+                  </div>
+                </div>
+              )
             ) : (
               profileLoading ? (
                 <div style={{ color: 'var(--text-secondary)', padding: '20px', textAlign: 'center' }}>Loading Profile...</div>
@@ -1601,11 +1980,13 @@ export default function AdminPanel() {
             <h3 style={{ fontSize: '18px', fontWeight: '600', color: 'white', marginBottom: '24px' }}>
               {activeTab === 'profile' 
                 ? 'Edit Developer Profile Settings'
-                : isCreateMode 
-                  ? `Create New ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'certifications' ? 'Certification' : activeTab === 'tech-stack' ? 'Tech Category' : activeTab === 'education' ? 'Education' : activeTab === 'experience' ? 'Experience' : 'Item'}` 
-                  : selectedItem 
-                    ? `Edit: ${activeTab === 'education' ? selectedItem.degree : activeTab === 'experience' ? selectedItem.role : selectedItem.title}` 
-                    : `Select a ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'certifications' ? 'Certification' : activeTab === 'tech-stack' ? 'Tech Category' : activeTab === 'education' ? 'Education' : activeTab === 'experience' ? 'Experience' : 'Item'} or Add New`}
+                : activeTab === 'services-page'
+                  ? 'Edit Services Page Settings'
+                  : isCreateMode 
+                    ? `Create New ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'blogs' ? 'Blog' : activeTab === 'certifications' ? 'Certification' : activeTab === 'tech-stack' ? 'Tech Category' : activeTab === 'education' ? 'Education' : activeTab === 'experience' ? 'Experience' : 'Item'}` 
+                    : selectedItem 
+                      ? `Edit: ${activeTab === 'education' ? selectedItem.degree : activeTab === 'experience' ? selectedItem.role : selectedItem.title}` 
+                      : `Select a ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'blogs' ? 'Blog' : activeTab === 'certifications' ? 'Certification' : activeTab === 'tech-stack' ? 'Tech Category' : activeTab === 'education' ? 'Education' : activeTab === 'experience' ? 'Experience' : 'Item'} or Add New`}
             </h3>
 
             {(!selectedItem && !isCreateMode && activeTab !== 'profile') ? (
@@ -1627,6 +2008,14 @@ export default function AdminPanel() {
                       <line x1="12" y1="17" x2="12" y2="21" />
                     </svg>
                     <p style={{ margin: 0, fontSize: '15px' }}>Please select a project from the list or click "+ Add New Project" to start editing.</p>
+                  </>
+                ) : activeTab === 'blogs' ? (
+                  <>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '16px', opacity: 0.5 }}>
+                      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                      <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5v-15z" />
+                    </svg>
+                    <p style={{ margin: 0, fontSize: '15px' }}>Please select a blog post from the list or click "+ Add New Blog" to start editing.</p>
                   </>
                 ) : activeTab === 'certifications' ? (
                   <>
@@ -3348,6 +3737,702 @@ export default function AdminPanel() {
                   </>
                 )}
 
+                {activeTab === 'services-page' && (
+                  <>
+                    <h4 style={{ color: 'var(--accent-cyan)', fontSize: '15px', fontWeight: '600', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '8px', marginBottom: '16px' }}>Hero Section</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Hero Badge Pill</label>
+                        <input 
+                          type="text" 
+                          value={spHeroBadge} 
+                          onChange={(e) => setSpHeroBadge(e.target.value)} 
+                          className="admin-input"
+                          placeholder="Services & Pricing"
+                          required
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Headline Title</label>
+                        <input 
+                          type="text" 
+                          value={spHeroTitle} 
+                          onChange={(e) => setSpHeroTitle(e.target.value)} 
+                          className="admin-input"
+                          placeholder="Transparent Pricing."
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Gradient Subtitle</label>
+                        <input 
+                          type="text" 
+                          value={spHeroSubtitle} 
+                          onChange={(e) => setSpHeroSubtitle(e.target.value)} 
+                          className="admin-input"
+                          placeholder="Quality Solutions."
+                          required
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Hero Description</label>
+                        <textarea 
+                          value={spHeroDesc} 
+                          onChange={(e) => setSpHeroDesc(e.target.value)} 
+                          className="admin-input"
+                          rows="2"
+                          placeholder="Choose the perfect package..."
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <h4 style={{ color: 'var(--accent-cyan)', fontSize: '15px', fontWeight: '600', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '8px', marginBottom: '16px', marginTop: '24px' }}>Pricing Plan Tiers</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {spPlans.map((plan, pIdx) => (
+                        <div key={pIdx} style={{ padding: '20px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h5 style={{ color: plan.accentColor || 'white', fontSize: '14.5px', fontWeight: '600', margin: 0 }}>
+                              {plan.name} Plan
+                            </h5>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: 'white', cursor: 'pointer' }}>
+                              <input 
+                                type="checkbox"
+                                checked={!!plan.popular}
+                                onChange={(e) => {
+                                  const isChecked = e.target.checked;
+                                  const updated = spPlans.map((p, i) => {
+                                    const isTargetPopular = i === pIdx ? isChecked : (isChecked ? false : p.popular);
+                                    // Auto recalculate glow based on checked state
+                                    const calcGlow = hexToRgba(p.accentColor, isTargetPopular ? 0.25 : 0.18);
+                                    return { 
+                                      ...p, 
+                                      popular: isTargetPopular,
+                                      glow: calcGlow || p.glow
+                                    };
+                                  });
+                                  setSpPlans(updated);
+                                }}
+                                style={{ accentColor: 'var(--accent-purple)' }}
+                              />
+                              Featured Tier ("MOST POPULAR")
+                            </label>
+                          </div>
+                          
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <label style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Price Value</label>
+                              <input 
+                                type="text"
+                                className="admin-input"
+                                value={plan.price}
+                                onChange={(e) => {
+                                  const updated = [...spPlans];
+                                  updated[pIdx].price = e.target.value;
+                                  setSpPlans(updated);
+                                }}
+                                placeholder="₹9,999"
+                                required
+                              />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <label style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Button Action Text</label>
+                              <input 
+                                type="text"
+                                className="admin-input"
+                                value={plan.actionText}
+                                onChange={(e) => {
+                                  const updated = [...spPlans];
+                                  updated[pIdx].actionText = e.target.value;
+                                  setSpPlans(updated);
+                                }}
+                                placeholder="Get Started"
+                                required
+                              />
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <label style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Description</label>
+                            <input 
+                              type="text"
+                              className="admin-input"
+                              value={plan.desc}
+                              onChange={(e) => {
+                                  const updated = [...spPlans];
+                                  updated[pIdx].desc = e.target.value;
+                                  setSpPlans(updated);
+                              }}
+                              placeholder="Ideal for..."
+                              required
+                            />
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                            <label className="admin-label">Theme Accent Color & Glow Preset</label>
+                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                              {PLAN_COLOR_PRESETS.map(preset => {
+                                const isActive = plan.accentColor === preset.color;
+                                return (
+                                  <button
+                                    key={preset.name}
+                                    type="button"
+                                    onClick={() => {
+                                      const updated = [...spPlans];
+                                      updated[pIdx].accentColor = preset.color;
+                                      updated[pIdx].glow = plan.popular ? preset.glowPopular : preset.glowBase;
+                                      setSpPlans(updated);
+                                    }}
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '8px',
+                                      background: isActive ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+                                      border: isActive ? `1px solid ${preset.color}` : '1px solid rgba(255, 255, 255, 0.08)',
+                                      borderRadius: '30px',
+                                      padding: '6px 14px',
+                                      color: isActive ? 'white' : 'var(--text-secondary)',
+                                      cursor: 'pointer',
+                                      fontSize: '12px',
+                                      fontWeight: '600',
+                                      transition: 'all 0.3s ease'
+                                    }}
+                                  >
+                                    <span style={{
+                                      width: '10px',
+                                      height: '10px',
+                                      borderRadius: '50%',
+                                      background: preset.color,
+                                      boxShadow: `0 0 8px ${preset.color}`,
+                                      display: 'inline-block'
+                                    }}></span>
+                                    {preset.name}
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                            <label style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Features (one per line)</label>
+                            <textarea 
+                              className="admin-input"
+                              value={plan.features ? plan.features.join('\n') : ''}
+                              onChange={(e) => {
+                                const updated = [...spPlans];
+                                updated[pIdx].features = e.target.value.split('\n').filter(f => f.trim() !== '');
+                                setSpPlans(updated);
+                              }}
+                              rows="4"
+                              placeholder="Feature 1&#10;Feature 2"
+                              required
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <h4 style={{ color: 'var(--accent-cyan)', fontSize: '15px', fontWeight: '600', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '8px', marginBottom: '16px', marginTop: '24px' }}>"Why Hire Me?" Points</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      {spWhyHire.map((item, wIdx) => (
+                        <div key={wIdx} style={{ padding: '16px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '12px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                          <span style={{ fontSize: '11.5px', color: 'var(--accent-cyan)', fontWeight: '600' }}>Benefit Card #{wIdx + 1}</span>
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <label style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Title</label>
+                              <input 
+                                type="text"
+                                className="admin-input"
+                                value={item.title}
+                                onChange={(e) => {
+                                  const updated = [...spWhyHire];
+                                  updated[wIdx].title = e.target.value;
+                                  setSpWhyHire(updated);
+                                }}
+                                placeholder="SEO Ready"
+                                required
+                              />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                              <label style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>Description</label>
+                              <input 
+                                type="text"
+                                className="admin-input"
+                                value={item.desc}
+                                onChange={(e) => {
+                                  const updated = [...spWhyHire];
+                                  updated[wIdx].desc = e.target.value;
+                                  setSpWhyHire(updated);
+                                }}
+                                placeholder="Built with SEO best practices..."
+                                required
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    <h4 style={{ color: 'var(--accent-cyan)', fontSize: '15px', fontWeight: '600', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '8px', marginBottom: '16px', marginTop: '24px' }}>Project Status Card</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Globe Status Indicator</label>
+                        <input 
+                          type="text" 
+                          value={spStatusText} 
+                          onChange={(e) => setSpStatusText(e.target.value)} 
+                          className="admin-input"
+                          placeholder="Live & Healthy"
+                          required
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Progress Bar Fill (%)</label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="100" 
+                            value={spStatusProgress} 
+                            onChange={(e) => setSpStatusProgress(parseInt(e.target.value) || 0)}
+                            style={{ flexGrow: 1, accentColor: 'var(--accent-cyan)' }}
+                          />
+                          <span style={{ fontSize: '14px', color: 'white', fontWeight: '600', minWidth: '40px', textAlign: 'right' }}>{spStatusProgress}%</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Performance Score Text</label>
+                        <input 
+                          type="text" 
+                          value={spPerformanceScore} 
+                          onChange={(e) => setSpPerformanceScore(e.target.value)} 
+                          className="admin-input"
+                          placeholder="98/100"
+                          required
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Speed Index Text</label>
+                        <input 
+                          type="text" 
+                          value={spSpeedIndex} 
+                          onChange={(e) => setSpSpeedIndex(e.target.value)} 
+                          className="admin-input"
+                          placeholder="0.3s"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">SEO Score Text</label>
+                        <input 
+                          type="text" 
+                          value={spSeoScore} 
+                          onChange={(e) => setSpSeoScore(e.target.value)} 
+                          className="admin-input"
+                          placeholder="100/100"
+                          required
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Security Grade Text</label>
+                        <input 
+                          type="text" 
+                          value={spSecurityScore} 
+                          onChange={(e) => setSpSecurityScore(e.target.value)} 
+                          className="admin-input"
+                          placeholder="SSL A+"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <h4 style={{ color: 'var(--accent-cyan)', fontSize: '15px', fontWeight: '600', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '8px', marginBottom: '16px', marginTop: '24px' }}>Free Consultation Banner (CTA)</h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">CTA Headline Title</label>
+                        <input 
+                          type="text" 
+                          value={spCtaTitle} 
+                          onChange={(e) => setSpCtaTitle(e.target.value)} 
+                          className="admin-input"
+                          placeholder="Need Help Choosing a Plan?"
+                          required
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">CTA Description</label>
+                        <textarea 
+                          value={spCtaDesc} 
+                          onChange={(e) => setSpCtaDesc(e.target.value)} 
+                          className="admin-input"
+                          rows="2"
+                          placeholder="Let's discuss your project requirements..."
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">WhatsApp Contact Link URL</label>
+                        <input 
+                          type="text" 
+                          value={spWhatsappLink} 
+                          onChange={(e) => setSpWhatsappLink(e.target.value)} 
+                          className="admin-input"
+                          placeholder="https://wa.me/919730593429"
+                          required
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Direct Email Address</label>
+                        <input 
+                          type="email" 
+                          value={spEmailAddress} 
+                          onChange={(e) => setSpEmailAddress(e.target.value)} 
+                          className="admin-input"
+                          placeholder="chaitanyakamble2005@gmail.com"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {activeTab === 'blogs' && (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      {/* Title */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Blog Title</label>
+                        <input 
+                          type="text" 
+                          value={bTitle} 
+                          onChange={(e) => setBTitle(e.target.value)} 
+                          className="admin-input"
+                          placeholder="WebGL simulations with Three.js"
+                          required
+                        />
+                      </div>
+
+                      {/* Category */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Category</label>
+                        <input 
+                          type="text" 
+                          value={bCategory} 
+                          onChange={(e) => setBCategory(e.target.value)} 
+                          className="admin-input"
+                          placeholder="e.g. Creative Dev"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                      {/* Date */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Publish Date</label>
+                        <input 
+                          type="text" 
+                          value={bDate} 
+                          onChange={(e) => setBDate(e.target.value)} 
+                          className="admin-input"
+                          placeholder="June 01, 2026"
+                          required
+                        />
+                      </div>
+
+                      {/* Read Time */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Read Time</label>
+                        <input 
+                          type="text" 
+                          value={bReadTime} 
+                          onChange={(e) => setBReadTime(e.target.value)} 
+                          className="admin-input"
+                          placeholder="5 min read"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    {/* Short Description */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label className="admin-label">Short Summary (for Card)</label>
+                      <textarea 
+                        value={bDesc} 
+                        onChange={(e) => setBDesc(e.target.value)} 
+                        className="admin-textarea"
+                        placeholder="Provide a brief summary shown on the preview card."
+                        rows="3"
+                        required
+                      />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px' }}>
+                      {/* Tags */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Tags (comma separated)</label>
+                        <input 
+                          type="text" 
+                          value={bTagsInput} 
+                          onChange={(e) => setBTagsInput(e.target.value)} 
+                          className="admin-input"
+                          placeholder="WebGL, Three.js, Math"
+                        />
+                      </div>
+
+                      {/* Color Preset */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <label className="admin-label">Theme Preset</label>
+                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+                          {PLAN_COLOR_PRESETS.map((p, idx) => (
+                            <button
+                              key={idx}
+                              type="button"
+                              onClick={() => setBGlow(p.glowBase)}
+                              style={{
+                                width: '28px',
+                                height: '28px',
+                                borderRadius: '50%',
+                                background: p.color,
+                                border: bGlow === p.glowBase ? '2px solid white' : '2px solid transparent',
+                                boxShadow: bGlow === p.glowBase ? `0 0 10px ${p.color}` : 'none',
+                                cursor: 'pointer',
+                                transition: 'all 0.2s'
+                              }}
+                              title={p.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Image Upload */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <label className="admin-label">Blog Image File (Card & Header)</label>
+                      {bImage ? (
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '16px', 
+                          padding: '16px', 
+                          border: '1px dashed rgba(255, 255, 255, 0.15)', 
+                          borderRadius: '12px',
+                          background: 'rgba(255, 255, 255, 0.01)'
+                        }}>
+                          <div style={{
+                            width: '90px',
+                            height: '60px',
+                            borderRadius: '6px',
+                            overflow: 'hidden',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexShrink: 0
+                          }}>
+                            <img 
+                              src={assetMap[bImage] || bImage} 
+                              alt="Blog post cover" 
+                              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                            />
+                          </div>
+                          <div style={{ flexGrow: 1, overflow: 'hidden' }}>
+                            <span style={{ fontSize: '13px', color: 'white', fontWeight: '500', display: 'block', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>Cover Image Loaded</span>
+                            <span style={{ fontSize: '11px', color: '#9ca3af' }}>
+                              {bImage.startsWith('data:') ? 'Custom Uploaded Cover' : 'Default Asset File'}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', gap: '10px' }}>
+                            <label className="btn-secondary" style={{ padding: '8px 14px', fontSize: '12px', cursor: 'pointer', borderRadius: '8px' }}>
+                              Change
+                              <input 
+                                type="file" 
+                                accept="image/*" 
+                                onChange={handleBlogImageUpload}
+                                style={{ display: 'none' }}
+                              />
+                            </label>
+                            <button 
+                              type="button"
+                              onClick={() => setBImage('')}
+                              className="btn-secondary"
+                              style={{ padding: '8px 14px', fontSize: '12px', color: '#f87171', borderColor: 'rgba(239, 68, 68, 0.15)', background: 'rgba(239, 68, 68, 0.02)', borderRadius: '8px' }}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <label style={{ 
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '12px',
+                          padding: '24px',
+                          border: '2px dashed rgba(255, 255, 255, 0.12)',
+                          borderRadius: '12px',
+                          cursor: 'pointer',
+                          background: 'rgba(255, 255, 255, 0.01)',
+                          transition: 'all 0.3s ease'
+                        }} className="upload-dropzone">
+                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.8 }}>
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                          </svg>
+                          <span style={{ fontSize: '13.5px', color: '#d1d5db', fontWeight: '500' }}>Click to upload cover image</span>
+                          <span style={{ fontSize: '11px', color: '#6b7280' }}>Accepts PNG, JPG, WebP up to 1.5MB</span>
+                          <input 
+                            type="file" 
+                            accept="image/*" 
+                            onChange={handleBlogImageUpload} 
+                            style={{ display: 'none' }}
+                          />
+                        </label>
+                      )}
+                    </div>
+
+                    {/* Blog Content Block Editor */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '20px' }}>
+                      <label className="admin-label" style={{ fontSize: '15px', color: 'white', fontWeight: '700' }}>Article Content Blocks</label>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                        {bContent.map((block, index) => (
+                          <div 
+                            key={index} 
+                            style={{ 
+                              background: 'rgba(255, 255, 255, 0.01)', 
+                              border: '1px solid rgba(255, 255, 255, 0.06)', 
+                              borderRadius: '8px', 
+                              padding: '16px',
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '10px'
+                            }}
+                          >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(255, 255, 255, 0.04)', paddingBottom: '8px' }}>
+                              <span style={{ 
+                                fontSize: '12px', 
+                                fontWeight: '700', 
+                                color: block.type === 'heading' ? 'var(--accent-pink)' : block.type === 'code' ? 'var(--accent-cyan)' : 'var(--accent-purple)',
+                                textTransform: 'uppercase',
+                                letterSpacing: '1px'
+                              }}>
+                                Block #{index + 1}: {block.type}
+                              </span>
+                              
+                              <div style={{ display: 'flex', gap: '6px' }}>
+                                <button 
+                                  type="button" 
+                                  onClick={() => handleMoveBlock(index, 'up')}
+                                  style={{ background: 'none', border: 'none', color: index === 0 ? '#4b5563' : '#d1d5db', cursor: index === 0 ? 'default' : 'pointer', fontSize: '13px' }}
+                                  disabled={index === 0}
+                                  title="Move Up"
+                                >
+                                  ▲
+                                </button>
+                                <button 
+                                  type="button" 
+                                  onClick={() => handleMoveBlock(index, 'down')}
+                                  style={{ background: 'none', border: 'none', color: index === bContent.length - 1 ? '#4b5563' : '#d1d5db', cursor: index === bContent.length - 1 ? 'default' : 'pointer', fontSize: '13px' }}
+                                  disabled={index === bContent.length - 1}
+                                  title="Move Down"
+                                >
+                                  ▼
+                                </button>
+                                <button 
+                                  type="button" 
+                                  onClick={() => handleRemoveBlock(index)}
+                                  style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: '12px', marginLeft: '8px', fontWeight: '600' }}
+                                  title="Remove Block"
+                                >
+                                  Delete
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Block values fields */}
+                            {block.type === 'code' ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                  <label style={{ fontSize: '12px', color: '#9ca3af' }}>Language:</label>
+                                  <input
+                                    type="text"
+                                    value={block.language || 'javascript'}
+                                    onChange={(e) => handleBlockChange(index, 'language', e.target.value)}
+                                    style={{
+                                      background: 'rgba(0,0,0,0.3)',
+                                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                                      borderRadius: '4px',
+                                      padding: '4px 8px',
+                                      color: 'white',
+                                      fontSize: '12px',
+                                      width: '120px'
+                                    }}
+                                  />
+                                </div>
+                                <textarea
+                                  value={block.code || ''}
+                                  onChange={(e) => handleBlockChange(index, 'code', e.target.value)}
+                                  className="admin-textarea"
+                                  placeholder="// Enter code here..."
+                                  rows="6"
+                                  style={{ fontFamily: 'monospace', fontSize: '13.5px', background: 'rgba(0,0,0,0.3)' }}
+                                />
+                              </div>
+                            ) : (
+                              <textarea
+                                value={block.text || ''}
+                                onChange={(e) => handleBlockChange(index, 'text', e.target.value)}
+                                className="admin-textarea"
+                                placeholder={block.type === 'heading' ? 'Enter subheading title...' : 'Enter paragraph text content...'}
+                                rows={block.type === 'heading' ? '2' : '4'}
+                              />
+                            )}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Add block trigger panel */}
+                      <div style={{ display: 'flex', gap: '10px', marginTop: '8px' }}>
+                        <button 
+                          type="button" 
+                          onClick={() => handleAddBlock('paragraph')} 
+                          className="btn-secondary" 
+                          style={{ padding: '8px 16px', fontSize: '12px', flex: 1, justifyContent: 'center' }}
+                        >
+                          + Paragraph Block
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={() => handleAddBlock('heading')} 
+                          className="btn-secondary" 
+                          style={{ padding: '8px 16px', fontSize: '12px', flex: 1, justifyContent: 'center' }}
+                        >
+                          + Heading Block
+                        </button>
+                        <button 
+                          type="button" 
+                          onClick={() => handleAddBlock('code')} 
+                          className="btn-secondary" 
+                          style={{ padding: '8px 16px', fontSize: '12px', flex: 1, justifyContent: 'center' }}
+                        >
+                          + Code Block
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 {/* Status Messages */}
                 {successMsg && (
                   <div className="status-message success-alert">
@@ -3364,7 +4449,7 @@ export default function AdminPanel() {
                  {/* Actions Row */}
                  <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                    <div>
-                     {!isCreateMode && selectedItem && activeTab !== 'profile' && (
+                     {!isCreateMode && selectedItem && activeTab !== 'profile' && activeTab !== 'services-page' && (
                        <button 
                          type="button" 
                          onClick={handleDelete} 
@@ -3378,13 +4463,13 @@ export default function AdminPanel() {
                          }}
                          disabled={isSaving || isDeleting}
                        >
-                         {isDeleting ? 'Deleting...' : `Delete ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'certifications' ? 'Certification' : 'Tech Category'}`}
+                         {isDeleting ? 'Deleting...' : `Delete ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'blogs' ? 'Blog' : activeTab === 'certifications' ? 'Certification' : 'Tech Category'}`}
                        </button>
                      )}
                    </div>
  
                    <div style={{ display: 'flex', gap: '16px', marginLeft: 'auto' }}>
-                     {activeTab !== 'profile' && (
+                     {activeTab !== 'profile' && activeTab !== 'services-page' && (
                        <button 
                          type="button" 
                          onClick={handleCancel} 
@@ -3415,9 +4500,11 @@ export default function AdminPanel() {
                          </span>
                        ) : activeTab === 'profile'
                          ? 'Save Profile'
-                         : isCreateMode 
-                           ? `Create ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'certifications' ? 'Certification' : 'Tech Category'}` 
-                           : 'Save Changes'}
+                         : activeTab === 'services-page'
+                           ? 'Save Page Settings'
+                           : isCreateMode 
+                             ? `Create ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'blogs' ? 'Blog' : activeTab === 'certifications' ? 'Certification' : 'Tech Category'}` 
+                             : 'Save Changes'}
                      </button>
                    </div>        
                 </div>

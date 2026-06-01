@@ -13,6 +13,7 @@ const Navbar = () => {
         <li><a href="#/about-detail" onClick={() => setIsOpen(false)}>About</a></li>
         <li><a href="#/projects" onClick={() => setIsOpen(false)}>Projects</a></li>
         <li><a href="#/services" onClick={() => setIsOpen(false)}>Services</a></li>
+        <li><a href="#/blog" onClick={() => setIsOpen(false)}>Blog</a></li>
         <li><a href="#footer" onClick={() => setIsOpen(false)}>Contacts</a></li>
         <li className="mobile-only-cta" style={{ width: '100%', marginTop: '8px' }}>
           <a

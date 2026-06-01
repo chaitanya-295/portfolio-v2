@@ -1,0 +1,162 @@
+[
+  {
+    "id": "creative-coding",
+    "title": "Unleashing Creative Coding: Three.js and Planetary Orbits",
+    "category": "Creative Dev",
+    "date": "June 01, 2026",
+    "readTime": "8 min read",
+    "desc": "Deep dive into physically accurate orbital simulations, custom GLSL shaders, and creating atmospheric planetary rings in WebGL.",
+    "glow": "rgba(6, 182, 212, 0.18)",
+    "accentColor": "#06b6d4",
+    "image": "blog_creative_coding.png",
+    "tags": ["WebGL", "Three.js", "Math"],
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "The web is no longer just flat text and static image layers. With the maturity of WebGL and libraries like Three.js, developers can create fully immersive, interactive experiences that run at 60 frames per second directly in the browser. In this article, we will explore how to simulate physically accurate planetary orbits using orbital physics and render them with glowing atmospheric rings using custom WebGL shaders."
+      },
+      {
+        "type": "heading",
+        "text": "The Physics of Planetary Motion"
+      },
+      {
+        "type": "paragraph",
+        "text": "To build a simulation that feels organic and authentic, we can't simply rotate objects on circular paths. Kepler's laws of planetary motion state that orbits are elliptical, with the sun at one of the focal points. In our code, we apply Keplerian orbital parameters, updating the position vectors dynamically based on gravitational attraction:"
+      },
+      {
+        "type": "code",
+        "code": "// Simulating gravity vector mechanics\nconst G = 0.0001; // Gravitational constant\nfunction updateOrbit(body, parent) {\n  const dx = parent.position.x - body.position.x;\n  const dy = parent.position.y - body.position.y;\n  const dz = parent.position.z - body.position.z;\n  const r2 = dx*dx + dy*dy + dz*dz;\n  const r = Math.sqrt(r2);\n  \n  // Gravitational force magnitude\n  const force = (G * body.mass * parent.mass) / r2;\n  \n  // Acceleration vector components\n  body.velocity.x += (force * dx) / (body.mass * r);\n  body.velocity.y += (force * dy) / (body.mass * r);\n  body.velocity.z += (force * dz) / (body.mass * r);\n  \n  // Apply velocity to position\n  body.position.add(body.velocity);\n}",
+        "language": "javascript"
+      },
+      {
+        "type": "heading",
+        "text": "Rendering Atmospheric Shaders"
+      },
+      {
+        "type": "paragraph",
+        "text": "A clean mesh sphere looks plain. To capture the majesty of space, we write custom GLSL vertex and fragment shaders. A glowing rim effect (or Fresnel glow) is achieved by comparing the vertex normals against the camera view vector. If the normal is perpendicular to the view vector, we render the glowing color at full opacity."
+      },
+      {
+        "type": "paragraph",
+        "text": "By blending this Fresnel calculation with noise-based turbulence, we can render gas giant bands and solar winds that animate dynamically in real-time. In future posts, we'll dive into coordinate transformations and GPU frame buffering."
+      }
+    ]
+  },
+  {
+    "id": "micro-frontend",
+    "title": "Designing the Ideal Micro-Frontend Architecture",
+    "category": "Architecture",
+    "date": "May 18, 2026",
+    "readTime": "12 min read",
+    "desc": "How to bundle modular, highly reactive micro-apps using modern Vite setups and federated dependency architectures.",
+    "glow": "rgba(168, 85, 247, 0.18)",
+    "accentColor": "#a855f7",
+    "image": "blog_micro_frontend.png",
+    "tags": ["Vite", "React", "Bundling"],
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "As engineering teams grow, scaling a single monolithic frontend becomes a bottleneck. Code conflicts increase, builds take longer, and deployments become high-risk actions. Micro-frontend architectures solve this by allowing multiple independent teams to build and deploy isolated applications that seamlessly assemble into a single, unified client experience."
+      },
+      {
+        "type": "heading",
+        "text": "Vite and Module Federation"
+      },
+      {
+        "type": "paragraph",
+        "text": "Historically, Webpack Module Federation was the standard. Today, Vite's speed makes it the modern choice. Using native ES Modules and plugin extensions, we can dynamically load modules over the network during runtime without pre-bundling them at compile-time."
+      },
+      {
+        "type": "code",
+        "code": "// vite.config.js - Module Federation Setup\nimport { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\nimport federation from '@originjs/vite-plugin-federation';\n\nexport default defineConfig({\n  plugins: [\n    react(),\n    federation({\n      name: 'host_app',\n      remotes: {\n        analyticsApp: 'http://localhost:5001/assets/remoteEntry.js',\n        settingsApp: 'http://localhost:5002/assets/remoteEntry.js'\n      },\n      shared: ['react', 'react-dom']\n    })\n  ]\n});",
+        "language": "javascript"
+      },
+      {
+        "type": "heading",
+        "text": "Solving the State Sharing Puzzle"
+      },
+      {
+        "type": "paragraph",
+        "text": "While isolation is crucial, micro-apps often need to communicate. Relying on heavy shared global states defeats independence. Instead, use custom DOM event buses or lightweight reactive state containers. By publishing clean interface contracts on a shared event bus, applications remain loosely coupled and can be modified or refactored independently without breaking sister applications."
+      }
+    ]
+  },
+  {
+    "id": "cosmic-canvas",
+    "title": "The Art of Cosmic Animation and Particle Physics in Canvas",
+    "category": "Design & UX",
+    "date": "May 05, 2026",
+    "readTime": "6 min read",
+    "desc": "A comprehensive guide to mathematical vector velocities, galactic gravity nodes, and high-performance rendering workflows on the canvas.",
+    "glow": "rgba(236, 72, 153, 0.18)",
+    "accentColor": "#ec4899",
+    "image": "blog_cosmic_canvas.png",
+    "tags": ["Canvas", "Graphics", "JS"],
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "Creating realistic particle animations requires more than just random numbers. It requires simulating real Newtonian physics. By calculating gravitational nodes, friction coefficients, and vector velocities in an animation loop, we can craft stunning canvas backgrounds that react naturally to mouse movements and hover coordinates."
+      },
+      {
+        "type": "heading",
+        "text": "High Performance Vector Mathematics"
+      },
+      {
+        "type": "paragraph",
+        "text": "In javascript, garbage collection is the enemy of 60fps animations. If we create new coordinate objects `({ x, y })` inside our animation frame tick, the browser will periodically stutter as it runs garbage collection. To maintain absolute smoothness, we initialize coordinate pools and mutate values in place:"
+      },
+      {
+        "type": "code",
+        "code": "// Mutative Vector Arithmetic for Canvas Performance\nclass Vector2D {\n  constructor(x = 0, y = 0) {\n    this.x = x;\n    this.y = y;\n  }\n  \n  add(v) {\n    this.x += v.x;\n    this.y += v.y;\n    return this;\n  }\n  \n  sub(v) {\n    this.x -= v.x;\n    this.y -= v.y;\n    return this;\n  }\n  \n  mult(scalar) {\n    this.x *= scalar;\n    this.y *= scalar;\n    return this;\n  }\n  \n  magnitude() {\n    return Math.sqrt(this.x * this.x + this.y * this.y);\n  }\n}",
+        "language": "javascript"
+      },
+      {
+        "type": "heading",
+        "text": "Particle Interaction and Friction"
+      },
+      {
+        "type": "paragraph",
+        "text": "Adding mouse interactivity is simple: we calculate the vector distance between the cursor and each particle. If a particle is within a target radius, we add a push-back force vector away from the mouse. Then, we multiply the speed by a friction value (e.g. `0.98`) to simulate medium resistance, letting particles settle back into their default positions when the cursor moves away."
+      }
+    ]
+  },
+  {
+    "id": "state-management",
+    "title": "Taming State Management: React 19 vs. Core Abstractions",
+    "category": "Engineering",
+    "date": "April 24, 2026",
+    "readTime": "9 min read",
+    "desc": "Analyzing React 19's Server Actions, hook APIs, and comparing them with clean singleton data layers for hybrid web structures.",
+    "glow": "rgba(99, 102, 241, 0.18)",
+    "accentColor": "#6366f1",
+    "image": "blog_state_management.png",
+    "tags": ["React 19", "State", "API"],
+    "content": [
+      {
+        "type": "paragraph",
+        "text": "React 19 introduces game-changing primitives like Server Actions, `useActionState`, and the `use` API. While these tools greatly simplify data-fetching and form state handling, they also shift the boundaries of where state is stored. In this article, we look at how to balance React 19 features with traditional client-side singleton patterns."
+      },
+      {
+        "type": "heading",
+        "text": "The Rise of Server-First State"
+      },
+      {
+        "type": "paragraph",
+        "text": "With Server Actions, React integrates forms with asynchronous backend transitions out-of-the-box. Instead of declaring multiple manual loading, error, and success state variables, React 19's `useActionState` manages this status automatically:"
+      },
+      {
+        "type": "code",
+        "code": "// React 19 useActionState form handling\nimport { useActionState } from 'react';\n\nasync function updateProfile(prevState, formData) {\n  try {\n    const name = formData.get(\"username\");\n    await saveProfileToDatabase(name);\n    return { success: true, message: \"Profile updated!\" };\n  } catch (error) {\n    return { success: false, message: error.message };\n  }\n}\n\nfunction ProfileForm() {\n  const [state, formAction, isPending] = useActionState(updateProfile, null);\n  \n  return (\n    <form action={formAction}>\n      <input name=\"username\" type=\"text\" disabled={isPending} />\n      <button type=\"submit\" disabled={isPending}>\n        {isPending ? 'Saving...' : 'Save'}\n      </button>\n      {state && <p className=\"feedback\">{state.message}</p>}\n    </form>\n  );\n}",
+        "language": "javascript"
+      },
+      {
+        "type": "heading",
+        "text": "When to Stick to Client Singletons"
+      },
+      {
+        "type": "paragraph",
+        "text": "Server Actions are great for form actions, but client-only states (like canvas themes, active navigation routes, or audio players) are best kept in client-side singleton instances. Standard React hooks combined with simple publish-subscribe architectures ensure that UI components stay synchronized without incurring server round-trips."
+      }
+    ]
+  }
+]
