@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import projectsList, { useProjects } from '../data/projects';
 import { useServices } from '../data/services';
 import { useProfile } from '../data/profile';
+import { useTestimonials, submitTestimonial } from '../data/testimonials';
 
 // ==========================================
 // 1. HERO COMPONENT (Default Export)
@@ -118,7 +119,7 @@ const Hero = () => {
           <a href={profile.resumeUrl || "#resume"} onClick={handleOpenResume} className="btn-secondary">
             Download Resume
           </a>
-          <a href="#footer" className="btn-secondary">
+          <a href="#/contacts" className="btn-secondary">
             Contact Me
           </a>
         </div>
@@ -154,9 +155,16 @@ const Hero = () => {
             </a>
           )}
 
+          {/* WhatsApp */}
+          <a href="https://wa.me/919730593429?text=Hi%20Chaitanya%2C%20I%20would%20like%20to%20discuss%20a%20project%20with%20you%21" target="_blank" rel="noopener noreferrer" className="social-icon-btn" aria-label="WhatsApp">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.897 0c3.183.001 6.177 1.24 8.428 3.493 2.25 2.253 3.487 5.25 3.484 8.435-.005 6.573-5.33 11.897-11.9 11.897-1.998-.001-3.957-.502-5.707-1.458L0 24zm6.549-3.722c1.652.98 3.516 1.5 5.434 1.5 5.498 0 9.972-4.475 9.976-9.974.001-2.664-1.034-5.17-2.915-7.054C17.26 2.863 14.76 1.828 12.09 1.828 6.596 1.828 2.12 6.304 2.116 11.804c-.001 1.944.506 3.844 1.47 5.514l-.995 3.637 3.73-.977zm11.367-7.56c-.32-.16-1.89-.93-2.185-1.04-.294-.11-.51-.16-.723.16-.214.32-.828 1.04-1.014 1.25-.187.21-.374.24-.694.08-.32-.16-1.353-.5-2.578-1.593-.952-.85-1.594-1.9-1.782-2.22-.187-.32-.02-.49.14-.65.144-.144.32-.37.48-.56.16-.18.214-.3.32-.5.11-.2.05-.37-.03-.53-.08-.16-.723-1.74-.99-2.388-.26-.625-.526-.54-.723-.55-.186-.01-.4-.01-.613-.01-.214 0-.56.08-.854.4-.294.32-1.123 1.1-1.123 2.68 0 1.58 1.15 3.11 1.31 3.33.16.22 2.264 3.457 5.485 4.85.766.33 1.363.528 1.83.676.77.244 1.47.21 2.025.128.619-.092 1.89-.77 2.152-1.48.26-.71.26-1.32.18-1.45-.08-.13-.3-.21-.62-.37z"/>
+            </svg>
+          </a>
+
           {/* Email */}
           {profile.email && (
-            <a href={`mailto:${profile.email}`} className="social-icon-btn" aria-label="Email">
+            <a href={`mailto:${profile.email}?subject=Project%20Inquiry&body=Hi%20Chaitanya%2C%20I%20would%20like%20to%20discuss%20a%20project%20with%20you%21`} className="social-icon-btn" aria-label="Email">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
                 <polyline points="22,6 12,13 2,6"></polyline>
@@ -247,6 +255,28 @@ export const Services = () => {
   const { services, loading } = useServices();
   const [activeIndex, setActiveIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
+
+  // Trigger IntersectionObserver once loading completes to animate elements
+  useEffect(() => {
+    if (loading || services.length === 0) return;
+    const timeoutId = setTimeout(() => {
+      const observer = new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { root: null, rootMargin: '0px 0px -60px 0px', threshold: 0.08 }
+      );
+      const elements = document.querySelectorAll('#services .reveal-on-scroll');
+      elements.forEach((el) => observer.observe(el));
+      return () => observer.disconnect();
+    }, 100);
+    return () => clearTimeout(timeoutId);
+  }, [loading, services]);
 
   useEffect(() => {
     if (isHovered || loading || services.length === 0) return;
@@ -395,6 +425,28 @@ export const Projects = () => {
   const { projects, loading } = useProjects();
   const displayedProjects = projects.slice(0, 3);
 
+  // Trigger IntersectionObserver once loading completes to animate elements
+  useEffect(() => {
+    if (loading || projects.length === 0) return;
+    const timeoutId = setTimeout(() => {
+      const observer = new IntersectionObserver(
+        (entries, obs) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              obs.unobserve(entry.target);
+            }
+          });
+        },
+        { root: null, rootMargin: '0px 0px -60px 0px', threshold: 0.08 }
+      );
+      const elements = document.querySelectorAll('#projects .reveal-on-scroll');
+      elements.forEach((el) => observer.observe(el));
+      return () => observer.disconnect();
+    }, 100);
+    return () => clearTimeout(timeoutId);
+  }, [loading, projects]);
+
   return (
     <section className="projects-section" id="projects">
       <div className="section-header reveal-on-scroll reveal-fade-up">
@@ -528,45 +580,77 @@ export const Projects = () => {
 // ==========================================
 // 5. TESTIMONIALS COMPONENT
 // ==========================================
-export const Testimonials = () => {
-  const [activeIndex, setActiveIndex] = useState(0);
+const TESTIMONIAL_GLOW_PRESETS = [
+  { name: 'Cyan', glow: 'rgba(6, 182, 212, 0.15)', color: 'var(--accent-cyan)' },
+  { name: 'Purple', glow: 'rgba(168, 85, 247, 0.15)', color: 'var(--accent-purple)' },
+  { name: 'Pink', glow: 'rgba(236, 72, 153, 0.15)', color: 'var(--accent-pink)' },
+  { name: 'Indigo', glow: 'rgba(99, 102, 241, 0.15)', color: 'var(--accent-indigo)' }
+];
 
-  const testimonialsList = [
-    {
-      name: 'Sarah Connor',
-      role: 'CTO',
-      company: 'CyberTech Systems',
-      text: "Chaitanya's WebGL planetary simulator exceeded our expectations. The orbital physics details, high-performance shading, and visual fidelity were absolutely top-notch.",
-      rating: 5,
-      avatar: 'SC',
-      glow: 'rgba(6, 182, 212, 0.15)' // Cyan glow
-    },
-    {
-      name: 'David Miller',
-      role: 'Product Lead',
-      company: 'StellarAnalytics',
-      text: 'The cosmic telemetry dashboard he built was stunning. Our real-time data flow integrates perfectly, and the user interaction is exceptionally smooth. Exceptional work!',
-      rating: 5,
-      avatar: 'DM',
-      glow: 'rgba(236, 72, 153, 0.15)' // Pink glow
-    },
-    {
-      name: 'Elena Rostova',
-      role: 'Co-Founder',
-      company: 'Nebula Web3',
-      text: 'An outstanding full-stack developer. Chaitanya integrated our Ethereum smart contracts and custom GLSL shaders seamlessly, launching our minting portal ahead of schedule.',
-      rating: 5,
-      avatar: 'ER',
-      glow: 'rgba(168, 85, 247, 0.15)' // Purple glow
-    }
-  ];
+export const Testimonials = () => {
+  const { testimonials: testimonialsList, loading: testimonialsLoading } = useTestimonials();
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    name: '',
+    role: '',
+    company: '',
+    text: '',
+    rating: 5,
+    glow: 'rgba(6, 182, 212, 0.15)'
+  });
+  const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const handlePrev = () => {
+    if (testimonialsList.length === 0) return;
     setActiveIndex((prev) => (prev - 1 + testimonialsList.length) % testimonialsList.length);
   };
 
   const handleNext = () => {
+    if (testimonialsList.length === 0) return;
     setActiveIndex((prev) => (prev + 1) % testimonialsList.length);
+  };
+
+  const handleReviewSubmit = async (e) => {
+    e.preventDefault();
+    setFormError('');
+    setSubmitSuccess(false);
+
+    if (!reviewForm.name.trim() || !reviewForm.role.trim() || !reviewForm.company.trim() || !reviewForm.text.trim()) {
+      setFormError('All fields are required.');
+      return;
+    }
+
+    if (reviewForm.text.trim().length < 10) {
+      setFormError('Review text should be at least 10 characters.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await submitTestimonial(reviewForm);
+      setSubmitSuccess(true);
+      setReviewForm({
+        name: '',
+        role: '',
+        company: '',
+        text: '',
+        rating: 5,
+        glow: 'rgba(6, 182, 212, 0.15)'
+      });
+      setTimeout(() => {
+        setShowReviewModal(false);
+        setSubmitSuccess(false);
+      }, 1500);
+    } catch (err) {
+      console.error('Submission failed:', err);
+      setFormError('Failed to publish review. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -581,99 +665,253 @@ export const Testimonials = () => {
         <p className="section-desc">
           Real feedback from product teams, startup founders, and technical directors.
         </p>
+        <button
+          onClick={() => setShowReviewModal(true)}
+          className="btn-primary"
+          style={{ marginTop: '20px', padding: '10px 24px', fontSize: '14.5px', gap: '8px', zIndex: 10 }}
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Write a Review
+        </button>
       </div>
 
-      <div className="testimonials-carousel-view reveal-on-scroll reveal-fade-right delay-100">
-        <div className="testimonials-carousel-container">
-          {testimonialsList.map((item, idx) => {
-            const count = testimonialsList.length;
-            let offset = idx - activeIndex;
-
-            if (offset < -count / 2) offset += count;
-            if (offset > count / 2) offset -= count;
-
-            const absOffset = Math.abs(offset);
-            const isActive = offset === 0;
-
-            const translate = `translate(calc(-50% + ${offset} * var(--t-carousel-spacing)), -50%)`;
-            const scale = `scale(${1 - absOffset * 0.1})`;
-
-            const inlineStyle = {
-              transform: `${translate} ${scale}`,
-              opacity: absOffset > 1 ? 0 : 1 - absOffset * 0.2,
-              zIndex: 10 - absOffset,
-              pointerEvents: isActive ? 'auto' : 'none',
-              '--testimonial-glow': item.glow
-            };
-
-            return (
-              <div
-                key={idx}
-                className={`glass-panel testimonial-carousel-card ${isActive ? 'active-card' : ''}`}
-                style={inlineStyle}
-                onClick={() => setActiveIndex(idx)}
-              >
-                <div className="testimonial-rating">
-                  {[...Array(item.rating)].map((_, i) => (
-                    <svg
-                      key={i}
-                      className="star-icon"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      stroke="currentColor"
-                      strokeWidth="1"
-                    >
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                    </svg>
-                  ))}
-                </div>
-
-                <p className="testimonial-quote">“{item.text}”</p>
-
-                <div className="testimonial-author">
-                  <div className="testimonial-avatar" style={{ '--avatar-glow': item.glow }}>
-                    {item.avatar}
-                  </div>
-                  <div className="testimonial-meta">
-                    <h4 className="testimonial-name">{item.name}</h4>
-                    <p className="testimonial-role">
-                      {item.role} @ <span className="text-gradient-purple">{item.company}</span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+      {testimonialsLoading ? (
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '350px' }}>
+          <div style={{
+            width: '40px',
+            height: '40px',
+            borderRadius: '50%',
+            border: '2px solid rgba(255, 255, 255, 0.1)',
+            borderTopColor: 'var(--accent-purple)',
+            animation: 'spin-slow 2s linear infinite'
+          }} />
+          <span style={{ marginTop: '16px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+            Loading testimonials...
+          </span>
         </div>
+      ) : testimonialsList.length > 0 ? (
+        <div className="testimonials-carousel-view reveal-on-scroll reveal-fade-right delay-100">
+          <div className="testimonials-carousel-container">
+            {testimonialsList.map((item, idx) => {
+              const count = testimonialsList.length;
+              let offset = idx - activeIndex;
 
-        <div className="carousel-controls">
-          <button className="carousel-btn" onClick={handlePrev} aria-label="Previous testimonial">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="19" y1="12" x2="5" y2="12"></line>
-              <polyline points="12 19 5 12 12 5"></polyline>
-            </svg>
-          </button>
+              if (offset < -count / 2) offset += count;
+              if (offset > count / 2) offset -= count;
 
-          <div className="carousel-dots">
-            {testimonialsList.map((_, idx) => (
-              <div
-                key={idx}
-                className={`carousel-dot ${idx === activeIndex ? 'active' : ''}`}
-                onClick={() => setActiveIndex(idx)}
-              />
-            ))}
+              const absOffset = Math.abs(offset);
+              const isActive = offset === 0;
+
+              const translate = `translate(calc(-50% + ${offset} * var(--t-carousel-spacing)), -50%)`;
+              const scale = `scale(${1 - absOffset * 0.1})`;
+
+              const inlineStyle = {
+                transform: `${translate} ${scale}`,
+                opacity: absOffset > 1 ? 0 : 1 - absOffset * 0.2,
+                zIndex: 10 - absOffset,
+                pointerEvents: isActive ? 'auto' : 'none',
+                '--testimonial-glow': item.glow
+              };
+
+              return (
+                <div
+                  key={idx}
+                  className={`glass-panel testimonial-carousel-card ${isActive ? 'active-card' : ''}`}
+                  style={inlineStyle}
+                  onClick={() => setActiveIndex(idx)}
+                >
+                  <div className="testimonial-rating">
+                    {[...Array(item.rating || 5)].map((_, i) => (
+                      <svg
+                        key={i}
+                        className="star-icon"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="currentColor"
+                        stroke="currentColor"
+                        strokeWidth="1"
+                      >
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    ))}
+                  </div>
+
+                  <p className="testimonial-quote">“{item.text}”</p>
+
+                  <div className="testimonial-author">
+                    <div className="testimonial-avatar" style={{ '--avatar-glow': item.glow }}>
+                      {item.avatar || 'AN'}
+                    </div>
+                    <div className="testimonial-meta">
+                      <h4 className="testimonial-name">{item.name}</h4>
+                      <p className="testimonial-role">
+                        {item.role} @ <span className="text-gradient-purple">{item.company}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
-          <button className="carousel-btn" onClick={handleNext} aria-label="Next testimonial">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </button>
+          <div className="carousel-controls">
+            <button className="carousel-btn" onClick={handlePrev} aria-label="Previous testimonial">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
+
+            <div className="carousel-dots">
+              {testimonialsList.map((_, idx) => (
+                <div
+                  key={idx}
+                  className={`carousel-dot ${idx === activeIndex ? 'active' : ''}`}
+                  onClick={() => setActiveIndex(idx)}
+                />
+              ))}
+            </div>
+
+            <button className="carousel-btn" onClick={handleNext} aria-label="Next testimonial">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div style={{ textAlign: 'center', padding: '48px 0' }}>
+          <span style={{ color: 'var(--text-secondary)' }}>No reviews found.</span>
+        </div>
+      )}
+
+      {showReviewModal && (
+        <div className="modal-overlay" onClick={() => setShowReviewModal(false)}>
+          <div className="review-modal-card" onClick={(e) => e.stopPropagation()}>
+            <button className="modal-close-btn" onClick={() => setShowReviewModal(false)} aria-label="Close modal">
+              ✕
+            </button>
+            <h3 style={{ fontSize: '22px', fontWeight: '850', color: 'white', margin: '0 0 8px 0', letterSpacing: '-0.5px' }}>
+              Share Your Experience
+            </h3>
+            <p style={{ fontSize: '14px', color: '#9ca3af', margin: '0 0 24px 0', lineHeight: '1.5' }}>
+              Your feedback is highly appreciated! Fill out the form below to post your testimonial card.
+            </p>
+
+            <form onSubmit={handleReviewSubmit}>
+              <div className="contact-form-group">
+                <label className="contact-label">Full Name</label>
+                <input
+                  type="text"
+                  className="contact-input"
+                  placeholder="e.g. John Doe"
+                  value={reviewForm.name}
+                  onChange={(e) => setReviewForm({ ...reviewForm, name: e.target.value })}
+                  required
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', margin: '16px 0' }}>
+                <div className="contact-form-group">
+                  <label className="contact-label">Role / Job Title</label>
+                  <input
+                    type="text"
+                    className="contact-input"
+                    placeholder="e.g. CEO"
+                    value={reviewForm.role}
+                    onChange={(e) => setReviewForm({ ...reviewForm, role: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="contact-form-group">
+                  <label className="contact-label">Company Name</label>
+                  <input
+                    type="text"
+                    className="contact-input"
+                    placeholder="e.g. ACME Corp"
+                    value={reviewForm.company}
+                    onChange={(e) => setReviewForm({ ...reviewForm, company: e.target.value })}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="contact-form-group" style={{ margin: '16px 0' }}>
+                <label className="contact-label">Star Rating</label>
+                <div className="rating-select-container">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      className={`rating-star-btn ${star <= reviewForm.rating ? 'active' : ''}`}
+                      onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                    >
+                      <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                      </svg>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="contact-form-group" style={{ margin: '16px 0' }}>
+                <label className="contact-label">Review Description</label>
+                <textarea
+                  className="contact-input"
+                  rows="4"
+                  placeholder="Describe your working experience..."
+                  value={reviewForm.text}
+                  onChange={(e) => setReviewForm({ ...reviewForm, text: e.target.value })}
+                  style={{ resize: 'none' }}
+                  required
+                />
+              </div>
+
+              <div className="contact-form-group" style={{ margin: '16px 0 28px 0' }}>
+                <label className="contact-label">Card Glow Theme</label>
+                <div className="glow-selection-row">
+                  {TESTIMONIAL_GLOW_PRESETS.map((p) => (
+                    <button
+                      key={p.name}
+                      type="button"
+                      className={`glow-preset-btn ${reviewForm.glow === p.glow ? 'selected' : ''}`}
+                      style={{ background: p.glow, color: p.color }}
+                      onClick={() => setReviewForm({ ...reviewForm, glow: p.glow })}
+                      title={`${p.name} Glow`}
+                    />
+                  ))}
+                </div>
+              </div>
+
+              {formError && (
+                <div style={{ fontSize: '13.5px', color: '#f87171', marginBottom: '16px', fontWeight: '500' }}>
+                  ⚠ {formError}
+                </div>
+              )}
+
+              {submitSuccess && (
+                <div style={{ fontSize: '13.5px', color: '#34d399', marginBottom: '16px', fontWeight: '500' }}>
+                  ✓ Review submitted successfully!
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className="btn-primary"
+                style={{ width: '100%', justifyContent: 'center', height: '46px', borderRadius: '10px' }}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? 'Posting Review...' : 'Publish Review'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </section>
   );
 };
@@ -702,7 +940,7 @@ export const Cta = () => {
                 <polyline points="12 5 19 12 12 19"></polyline>
               </svg>
             </a>
-            <a href="#footer" className="btn-secondary">
+            <a href="#/contacts" className="btn-secondary">
               Let's Talk
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
@@ -860,7 +1098,7 @@ export const Pricing = () => {
             </ul>
             <div style={{ marginTop: 'auto', width: '100%' }}>
               <a 
-                href="#footer" 
+                href={`#/contacts?subject=${encodeURIComponent(plan.name + ' Plan Inquiry')}&message=${encodeURIComponent('Hi Chaitanya, I am interested in the ' + plan.name + ' package. Let\'s connect and discuss this!')}`}
                 className={plan.popular ? 'btn-primary' : 'btn-secondary'} 
                 style={{ width: '100%', justifyContent: 'center', display: 'flex', textDecoration: 'none' }}
               >

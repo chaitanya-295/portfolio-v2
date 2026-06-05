@@ -14,10 +14,10 @@ const Navbar = () => {
         <li><a href="#/projects" onClick={() => setIsOpen(false)}>Projects</a></li>
         <li><a href="#/services" onClick={() => setIsOpen(false)}>Services</a></li>
         <li><a href="#/blog" onClick={() => setIsOpen(false)}>Blog</a></li>
-        <li><a href="#footer" onClick={() => setIsOpen(false)}>Contacts</a></li>
+        <li><a href="#/contacts" onClick={() => setIsOpen(false)}>Contacts</a></li>
         <li className="mobile-only-cta" style={{ width: '100%', marginTop: '8px' }}>
           <a
-            href="#footer"
+            href="#/contacts"
             className="btn-secondary"
             onClick={() => setIsOpen(false)}
             style={{ padding: '10px 24px', fontSize: '14px', width: '100%', justifyContent: 'center', display: 'inline-flex' }}
@@ -28,7 +28,7 @@ const Navbar = () => {
       </ul>
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div className="nav-cta desktop-only-cta">
-          <a href="#footer" className="btn-secondary" style={{ padding: '8px 20px', fontSize: '14px' }}>
+          <a href="#/contacts" className="btn-secondary" style={{ padding: '8px 20px', fontSize: '14px' }}>
             Let's Talk
           </a>
         </div>

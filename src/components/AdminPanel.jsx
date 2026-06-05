@@ -6,6 +6,7 @@ import { useSkills, updateSkillsList, CategoryIcon, SkillLogo } from '../data/sk
 import { useProfile, updateProfile } from '../data/profile';
 import { useServicesPage, updateServicesPage } from '../data/servicesPage';
 import { useBlogPosts, updateBlogPostsList } from '../data/blogPosts';
+import { useContactMessages, deleteContactMessage } from '../data/contacts';
 import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import './AdminPanel.css';
@@ -332,6 +333,7 @@ export default function AdminPanel() {
   const { profile, loading: profileLoading } = useProfile();
   const { config: servicesPageConfig, loading: servicesPageLoading } = useServicesPage();
   const { blogPosts, loading: blogsLoading } = useBlogPosts();
+  const { messages, loading: messagesLoading } = useContactMessages();
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [isCreateMode, setIsCreateMode] = useState(false);
@@ -1341,7 +1343,7 @@ export default function AdminPanel() {
 
   const handleDelete = async () => {
     if (!selectedItem) return;
-    const displayTitle = activeTab === 'education' ? selectedItem.degree : activeTab === 'experience' ? selectedItem.role : selectedItem.title;
+    const displayTitle = activeTab === 'education' ? selectedItem.degree : activeTab === 'experience' ? selectedItem.role : activeTab === 'messages' ? `Message from ${selectedItem.name}` : selectedItem.title;
     if (!window.confirm(`Are you sure you want to delete "${displayTitle}"?`)) return;
 
     setIsDeleting(true);
@@ -1361,6 +1363,9 @@ export default function AdminPanel() {
         const cleaned = cleanServicesForStorage(updatedRawList);
         updateServicesList(cleaned);
         setSuccessMsg('Service deleted successfully!');
+      } else if (activeTab === 'messages') {
+        await deleteContactMessage(selectedItem);
+        setSuccessMsg('Message deleted successfully!');
       } else if (activeTab === 'projects') {
         const updatedRawList = projects.filter(p => p.id !== selectedItem.id);
         if (db) {
@@ -1447,7 +1452,7 @@ export default function AdminPanel() {
     }
   };
 
-  const activeGlow = activeTab === 'services' ? sGlow : activeTab === 'projects' ? pGlow : activeTab === 'blogs' ? bGlow : activeTab === 'certifications' ? cGlow : activeTab === 'education' ? eduGlow : activeTab === 'experience' ? expGlow : activeTab === 'services-page' ? 'rgba(6, 182, 212, 0.15)' : skGlow;
+  const activeGlow = activeTab === 'services' ? sGlow : activeTab === 'projects' ? pGlow : activeTab === 'blogs' ? bGlow : activeTab === 'certifications' ? cGlow : activeTab === 'education' ? eduGlow : activeTab === 'experience' ? expGlow : activeTab === 'services-page' ? 'rgba(6, 182, 212, 0.15)' : activeTab === 'messages' ? 'rgba(168, 85, 247, 0.15)' : skGlow;
   const activeColor = GLOW_PRESETS.find(p => p.value === activeGlow)?.color || 'var(--accent-cyan)';
 
   return (
@@ -1530,12 +1535,19 @@ export default function AdminPanel() {
         >
           Profile
         </button>
+        <button
+          className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('messages'); handleCancel(); }}
+          style={{ flex: 1.2 }}
+        >
+          Messages
+        </button>
       </div>
 
       <div className="admin-layout-grid">
         {/* Left Column: Items List */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          {activeTab !== 'profile' && activeTab !== 'services-page' && (
+          {activeTab !== 'profile' && activeTab !== 'services-page' && activeTab !== 'messages' && (
             <button 
               onClick={handleStartCreate}
               className={`btn-primary ${isCreateMode ? 'active' : ''}`}
@@ -1913,6 +1925,52 @@ export default function AdminPanel() {
                   </div>
                 </div>
               )
+            ) : activeTab === 'messages' ? (
+              messagesLoading ? (
+                <div style={{ color: 'var(--text-secondary)', padding: '20px', textAlign: 'center' }}>Loading Messages...</div>
+              ) : messages.length === 0 ? (
+                <div style={{ color: 'var(--text-secondary)', padding: '20px', textAlign: 'center' }}>No messages received yet.</div>
+              ) : (
+                messages.map(m => (
+                  <div 
+                    key={m.id} 
+                    onClick={() => handleSelectItem(m)}
+                    className="glass-panel"
+                    style={{
+                      padding: '16px 20px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '16px',
+                      transition: 'all 0.3s ease',
+                      border: (selectedItem?.id === m.id && !isCreateMode && activeTab === 'messages') ? `1px solid var(--accent-purple)` : '1px solid rgba(255, 255, 255, 0.08)',
+                      boxShadow: (selectedItem?.id === m.id && !isCreateMode && activeTab === 'messages') ? `0 0 15px rgba(168, 85, 247, 0.15)` : 'none',
+                      background: (selectedItem?.id === m.id && !isCreateMode && activeTab === 'messages') ? 'rgba(255, 255, 255, 0.04)' : 'rgba(255, 255, 255, 0.01)'
+                    }}
+                  >
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '8px',
+                      background: 'rgba(168, 85, 247, 0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'var(--accent-purple)',
+                      flexShrink: 0
+                    }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                    </div>
+                    <div style={{ overflow: 'hidden', flexGrow: 1 }}>
+                      <h4 style={{ color: 'white', margin: '0 0 4px 0', fontSize: '14.5px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{m.name}</h4>
+                      <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: '12px', textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>{m.subject}</p>
+                    </div>
+                  </div>
+                ))
+              )
             ) : (
               profileLoading ? (
                 <div style={{ color: 'var(--text-secondary)', padding: '20px', textAlign: 'center' }}>Loading Profile...</div>
@@ -1982,14 +2040,16 @@ export default function AdminPanel() {
                 ? 'Edit Developer Profile Settings'
                 : activeTab === 'services-page'
                   ? 'Edit Services Page Settings'
-                  : isCreateMode 
-                    ? `Create New ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'blogs' ? 'Blog' : activeTab === 'certifications' ? 'Certification' : activeTab === 'tech-stack' ? 'Tech Category' : activeTab === 'education' ? 'Education' : activeTab === 'experience' ? 'Experience' : 'Item'}` 
-                    : selectedItem 
-                      ? `Edit: ${activeTab === 'education' ? selectedItem.degree : activeTab === 'experience' ? selectedItem.role : selectedItem.title}` 
-                      : `Select a ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'blogs' ? 'Blog' : activeTab === 'certifications' ? 'Certification' : activeTab === 'tech-stack' ? 'Tech Category' : activeTab === 'education' ? 'Education' : activeTab === 'experience' ? 'Experience' : 'Item'} or Add New`}
+                  : activeTab === 'messages'
+                    ? (selectedItem ? `Message Detail: ${selectedItem.subject}` : 'Inbox Submissions')
+                    : isCreateMode 
+                      ? `Create New ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'blogs' ? 'Blog' : activeTab === 'certifications' ? 'Certification' : activeTab === 'tech-stack' ? 'Tech Category' : activeTab === 'education' ? 'Education' : activeTab === 'experience' ? 'Experience' : 'Item'}` 
+                      : selectedItem 
+                        ? `Edit: ${activeTab === 'education' ? selectedItem.degree : activeTab === 'experience' ? selectedItem.role : selectedItem.title}` 
+                        : `Select a ${activeTab === 'services' ? 'Service' : activeTab === 'projects' ? 'Project' : activeTab === 'blogs' ? 'Blog' : activeTab === 'certifications' ? 'Certification' : activeTab === 'tech-stack' ? 'Tech Category' : activeTab === 'education' ? 'Education' : activeTab === 'experience' ? 'Experience' : 'Item'} or Add New`}
             </h3>
 
-            {(!selectedItem && !isCreateMode && activeTab !== 'profile') ? (
+            {(!selectedItem && !isCreateMode && activeTab !== 'profile' && activeTab !== 'services-page') ? (
               <div style={{ textAlign: 'center', padding: '100px 0', color: 'var(--text-secondary)' }}>
                 {activeTab === 'services' ? (
                   <>
@@ -2048,6 +2108,14 @@ export default function AdminPanel() {
                     </svg>
                     <p style={{ margin: 0, fontSize: '15px' }}>Please select a professional experience from the list or click "+ Add New Experience" to start editing.</p>
                   </>
+                ) : activeTab === 'messages' ? (
+                  <>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '16px', opacity: 0.5 }}>
+                      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                      <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    <p style={{ margin: 0, fontSize: '15px' }}>Please select a contact submission message from the inbox list to read it.</p>
+                  </>
                 ) : (
                   <>
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ marginBottom: '16px', opacity: 0.5 }}>
@@ -2057,6 +2125,85 @@ export default function AdminPanel() {
                     <p style={{ margin: 0, fontSize: '15px' }}>Please select a tech category from the list or click "+ Add New Tech Category" to start editing.</p>
                   </>
                 )}
+              </div>
+            ) : activeTab === 'messages' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <span className="admin-label">Sender Name</span>
+                    <div style={{ padding: '14px 16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: 'white', fontSize: '14.5px', fontWeight: '500' }}>
+                      {selectedItem.name}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <span className="admin-label">Sender Email</span>
+                    <div style={{ padding: '14px 16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: 'white', fontSize: '14.5px', fontWeight: '500' }}>
+                      <a href={`mailto:${selectedItem.email}`} style={{ color: 'var(--accent-cyan)', textDecoration: 'none' }}>
+                        {selectedItem.email}
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <span className="admin-label">Subject</span>
+                    <div style={{ padding: '14px 16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: 'white', fontSize: '14.5px', fontWeight: '500' }}>
+                      {selectedItem.subject}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <span className="admin-label">Received At</span>
+                    <div style={{ padding: '14px 16px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: 'white', fontSize: '14.5px', fontWeight: '500' }}>
+                      {new Date(selectedItem.timestamp).toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <span className="admin-label">Message Content</span>
+                  <div style={{ padding: '18px', background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', color: '#e5e7eb', fontSize: '14.5px', lineHeight: '1.6', minHeight: '120px', whiteSpace: 'pre-wrap' }}>
+                    {selectedItem.message}
+                  </div>
+                </div>
+
+                {successMsg && (
+                  <div className="status-message success-alert">
+                    <span style={{ fontSize: '16px' }}>✓</span> {successMsg}
+                  </div>
+                )}
+                {errorMsg && (
+                  <div className="status-message error-alert">
+                    <span style={{ fontSize: '16px' }}>⚠</span> {errorMsg}
+                  </div>
+                )}
+
+                <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <button 
+                    type="button" 
+                    onClick={handleDelete} 
+                    className="btn-secondary"
+                    style={{ 
+                      padding: '12px 24px', 
+                      fontSize: '14.5px', 
+                      color: '#f87171', 
+                      borderColor: 'rgba(239, 68, 68, 0.2)',
+                      background: 'rgba(239, 68, 68, 0.02)'
+                    }}
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? 'Deleting...' : 'Delete Message'}
+                  </button>
+
+                  <button 
+                    type="button" 
+                    onClick={handleCancel} 
+                    className="btn-secondary"
+                    style={{ padding: '12px 24px', fontSize: '14.5px', marginLeft: 'auto' }}
+                  >
+                    Close Viewer
+                  </button>
+                </div>
               </div>
             ) : (
               <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>

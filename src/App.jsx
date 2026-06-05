@@ -10,6 +10,7 @@ import AdminPanel from './components/AdminPanel';
 import BlogPage from './components/BlogPage';
 import BlogDetail from './components/BlogDetail';
 import Footer from './components/Footer';
+import ContactPage from './components/ContactPage';
 import './App.css';
 
 function App() {
@@ -38,6 +39,9 @@ function App() {
         window.scrollTo({ top: 0, behavior: 'instant' });
       } else if (hash === '#/admin' || hash === '#admin' || hash.includes('admin')) {
         setCurrentRoute('admin');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      } else if (hash === '#/contacts' || hash === '#contacts' || hash.includes('contacts')) {
+        setCurrentRoute('contacts');
         window.scrollTo({ top: 0, behavior: 'instant' });
       } else {
         setCurrentRoute('home');
@@ -101,6 +105,8 @@ function App() {
         <BlogDetail />
       ) : currentRoute === 'admin' ? (
         <AdminPanel />
+      ) : currentRoute === 'contacts' ? (
+        <ContactPage />
       ) : (
         <>
           {/* Central Cosmic Ring Section */}

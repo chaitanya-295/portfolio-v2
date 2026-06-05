@@ -129,7 +129,7 @@ export const updateProjectsList = (newList) => {
   if (typeof window !== 'undefined') {
     localStorage.setItem('portfolio_projects', JSON.stringify(newList));
   }
-  
+
   projectsList.length = 0;
   newList.forEach(item => {
     projectsList.push(mapProjectItem(item));
