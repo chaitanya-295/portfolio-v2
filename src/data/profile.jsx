@@ -1,29 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
-import initialProfile from './profile.json';
+import { doc, onSnapshot } from 'firebase/firestore';
 
-const loadLocalProfile = () => {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('portfolio_profile');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        console.error('Failed to parse cached portfolio_profile:', e);
-      }
-    }
-  }
-  return initialProfile;
-};
-
-// Singleton in-memory cache for components loaded synchronously before useEffect runs
-const profileObj = { ...loadLocalProfile() };
+// Singleton in-memory cache for synchronous rendering
+const profileObj = {};
 
 export const updateProfile = (newProfile) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('portfolio_profile', JSON.stringify(newProfile));
-  }
   Object.keys(profileObj).forEach(key => delete profileObj[key]);
   Object.assign(profileObj, newProfile);
 };
@@ -48,33 +30,26 @@ export const useProfile = () => {
               setLoading(false);
             }
           } else {
-            // Seed defaults locally/remotely
-            const local = loadLocalProfile();
             if (isMounted) {
-              setProfile(local);
               setLoading(false);
             }
           }
         }, (error) => {
-          console.warn("Firestore profile listener failed:", error);
-          const local = loadLocalProfile();
+          console.error("Firestore profile listener failed:", error);
           if (isMounted) {
-            setProfile(local);
             setLoading(false);
           }
         });
       } catch (error) {
-        console.warn("Firestore profile setup error:", error);
-        const local = loadLocalProfile();
+        console.error("Firestore profile setup error:", error);
         if (isMounted) {
-          setProfile(local);
           setLoading(false);
         }
       }
     } else {
-      const local = loadLocalProfile();
-      setProfile(local);
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     }
 
     return () => {

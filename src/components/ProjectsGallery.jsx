@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import projectsList, { useProjects } from '../data/projects';
 import { useSkills } from '../data/skills';
 import { useCertifications } from '../data/certifications';
@@ -9,15 +9,74 @@ const ProjectsGallery = () => {
   const { certifications, loading: certsLoading } = useCertifications();
   const [activeTab, setActiveTab] = useState('projects');
   const [techSubTab, setTechSubTab] = useState('All');
+  const [mainIndicatorStyle, setMainIndicatorStyle] = useState({ opacity: 0 });
+  const [subIndicatorStyle, setSubIndicatorStyle] = useState({ opacity: 0 });
+  const [isMainInit, setIsMainInit] = useState(false);
+  const [isSubInit, setIsSubInit] = useState(false);
+
+  useLayoutEffect(() => {
+    const updateMain = () => {
+      const container = document.querySelector('#main-tabs');
+      if (!container) return;
+      const activeBtn = container.querySelector('.tab-btn.active');
+      if (activeBtn) {
+        setMainIndicatorStyle({
+          top: `${activeBtn.offsetTop}px`,
+          left: `${activeBtn.offsetLeft}px`,
+          width: `${activeBtn.offsetWidth}px`,
+          height: `${activeBtn.offsetHeight}px`,
+          opacity: 1
+        });
+        setTimeout(() => setIsMainInit(true), 50);
+      }
+    };
+    updateMain();
+    const tId = setTimeout(updateMain, 60);
+    window.addEventListener('resize', updateMain);
+    return () => {
+      clearTimeout(tId);
+      window.removeEventListener('resize', updateMain);
+    };
+  }, [activeTab]);
+
+  useLayoutEffect(() => {
+    if (activeTab !== 'tech-stack') {
+      setIsSubInit(false);
+      return;
+    }
+    const updateSub = () => {
+      const container = document.querySelector('#tech-tabs');
+      if (!container) return;
+      const activeBtn = container.querySelector('.tab-btn.active');
+      if (activeBtn) {
+        setSubIndicatorStyle({
+          top: `${activeBtn.offsetTop}px`,
+          left: `${activeBtn.offsetLeft}px`,
+          width: `${activeBtn.offsetWidth}px`,
+          height: `${activeBtn.offsetHeight}px`,
+          opacity: 1
+        });
+        setTimeout(() => setIsSubInit(true), 50);
+      }
+    };
+    updateSub();
+    const tId = setTimeout(updateSub, 60);
+    window.addEventListener('resize', updateSub);
+    return () => {
+      clearTimeout(tId);
+      window.removeEventListener('resize', updateSub);
+    };
+  }, [techSubTab, activeTab]);
 
   return (
-    <section 
-      className="projects-section" 
-      id="projects-gallery" 
-      style={{ 
-        paddingTop: '140px', 
+    <section
+      className="projects-section"
+      id="projects-gallery"
+      style={{
+        paddingTop: '140px',
         minHeight: '85vh',
-        maxWidth: '1400px'
+        maxWidth: '1450px',
+        width: '100%'
       }}
     >
       <div className="section-header reveal-on-scroll reveal-fade-up visible">
@@ -33,7 +92,8 @@ const ProjectsGallery = () => {
       </div>
 
       {/* Tab Switcher */}
-      <div className="tabs-container" style={{ marginBottom: '48px' }}>
+      <div className="tabs-container has-indicator" id="main-tabs" style={{ marginBottom: '48px' }}>
+        <div className={`tab-indicator ${isMainInit ? 'initialized' : ''}`} style={mainIndicatorStyle} />
         <button
           className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
           onClick={() => setActiveTab('projects')}
@@ -58,7 +118,7 @@ const ProjectsGallery = () => {
       {activeTab === 'projects' && (
         <div className="tab-content-wrapper fade-in-up">
           {/* Grid view of projects */}
-          <div className="projects-grid" style={{ maxWidth: '1400px', width: '100%', margin: '0 auto' }}>
+          <div className="projects-grid" style={{ maxWidth: '100%', width: '100%', margin: '0 auto' }}>
             {loading ? (
               Array.from({ length: 6 }).map((_, idx) => (
                 <div
@@ -104,7 +164,7 @@ const ProjectsGallery = () => {
                   }}
                 >
                   {project.image && (
-                    <div className="project-image-wrapper" style={{ width: '100%', height: '170px', borderRadius: '8px', overflow: 'hidden', marginBottom: '16px', position: 'relative' }}>
+                    <div className="project-image-wrapper" style={{ width: '100%', height: '120px', borderRadius: '8px', overflow: 'hidden', marginBottom: '16px', position: 'relative' }}>
                       <img
                         src={project.image}
                         alt={project.title}
@@ -156,7 +216,7 @@ const ProjectsGallery = () => {
 
       {activeTab === 'certifications' && (
         <div className="tab-content-wrapper fade-in-up">
-          <div className="certifications-view" style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
+          <div className="certifications-view" style={{ maxWidth: '100%', margin: '0 auto', width: '100%' }}>
             <div className="certifications-grid">
               {certsLoading ? (
                 <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
@@ -187,7 +247,7 @@ const ProjectsGallery = () => {
                       <p style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Issued: {cert.date}</p>
                     </div>
                     <div style={{ marginTop: '24px' }}>
-                      <button 
+                      <button
                         onClick={() => {
                           if (!cert.link) return;
                           if (cert.link.startsWith('data:')) {
@@ -216,19 +276,19 @@ const ProjectsGallery = () => {
                             window.open(cert.link, '_blank');
                           }
                         }}
-                        style={{ 
+                        style={{
                           background: 'none',
                           border: 'none',
                           padding: 0,
                           cursor: 'pointer',
-                          fontSize: '14.5px', 
-                          color: 'white', 
-                          fontWeight: '600', 
-                          display: 'inline-flex', 
-                          alignItems: 'center', 
-                          gap: '6px', 
-                          transition: 'color 0.2s' 
-                        }} 
+                          fontSize: '14.5px',
+                          color: 'white',
+                          fontWeight: '600',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          transition: 'color 0.2s'
+                        }}
                         className="cert-link"
                       >
                         Verify Credential
@@ -253,13 +313,14 @@ const ProjectsGallery = () => {
       {activeTab === 'tech-stack' && (
         <div className="tab-content-wrapper fade-in-up">
           {/* Tech Stack Sub-Tabs */}
-          <div className="tabs-container" style={{ marginBottom: '32px', gap: '8px', padding: '6px', borderRadius: '30px', maxWidth: 'fit-content' }}>
+          <div className="tabs-container has-indicator" id="tech-tabs" style={{ marginBottom: '32px', gap: '8px', padding: '6px', borderRadius: '30px', maxWidth: 'fit-content', position: 'relative' }}>
+            <div className={`tab-indicator ${isSubInit ? 'initialized' : ''}`} style={subIndicatorStyle} />
             {['All', 'Frontend', 'Backend', 'Tools'].map((subTab) => (
               <button
                 key={subTab}
                 onClick={() => setTechSubTab(subTab)}
                 className={`tab-btn ${techSubTab === subTab ? 'active' : ''}`}
-                style={{ padding: '6px 16px', fontSize: '13px' }}
+                style={{ padding: '6px 16px', fontSize: '13px', zIndex: 1 }}
               >
                 {subTab}
               </button>
@@ -269,7 +330,7 @@ const ProjectsGallery = () => {
           <div
             className="projects-grid"
             style={{
-              maxWidth: techSubTab === 'All' ? '1400px' : '900px',
+              maxWidth: techSubTab === 'All' ? '100%' : '600px',
               margin: '0 auto',
               gridTemplateColumns: techSubTab === 'All' ? undefined : '1fr'
             }}

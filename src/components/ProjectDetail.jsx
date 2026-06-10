@@ -25,12 +25,106 @@ const getEmbedUrl = (url) => {
     console.error('Failed to parse YouTube URL:', url, e);
     videoId = url;
   }
-  return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1` : '';
+  return videoId ? `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&enablejsapi=1` : '';
 };
 
 const ProjectDetail = () => {
   const { projects, loading } = useProjects();
   const [project, setProject] = useState(null);
+  const [player, setPlayer] = useState(null);
+
+  // Load YouTube Iframe Player API and initialize player
+  useEffect(() => {
+    if (!project || !project.youtubeUrl) return;
+
+    // Load YT API script if not present
+    if (!window.YT) {
+      const tag = document.createElement('script');
+      tag.src = "https://www.youtube.com/iframe_api";
+      const firstScriptTag = document.getElementsByTagName('script')[0];
+      firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    }
+
+    let activePlayer = null;
+    const createPlayer = () => {
+      // Check if element is in DOM before initializing
+      const el = document.getElementById('project-yt-player');
+      if (!el) {
+        // Retry shortly if the component hasn't fully rendered yet
+        setTimeout(createPlayer, 100);
+        return;
+      }
+      activePlayer = new window.YT.Player('project-yt-player', {
+        events: {
+          onReady: (event) => {
+            setPlayer(event.target);
+          }
+        }
+      });
+    };
+
+    if (window.YT && window.YT.Player) {
+      createPlayer();
+    } else {
+      // If global callback is already set by another component, save it and chain it
+      const prevCallback = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (prevCallback) prevCallback();
+        createPlayer();
+      };
+    }
+
+    return () => {
+      if (activePlayer && typeof activePlayer.destroy === 'function') {
+        try {
+          activePlayer.destroy();
+        } catch (e) {
+          console.warn("Player destroy error:", e);
+        }
+      }
+      setPlayer(null);
+    };
+  }, [project]);
+
+  // Autoplay/Pause when scrolled in/out of view
+  useEffect(() => {
+    if (!player) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            try {
+              // Mute to pass browser autoplay restrictions
+              player.mute();
+              player.playVideo();
+            } catch (e) {
+              console.warn("Scroll play failed:", e);
+            }
+          } else {
+            try {
+              player.pauseVideo();
+            } catch (e) {
+              console.warn("Scroll pause failed:", e);
+            }
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    const target = document.querySelector('.project-video-panel');
+    if (target) {
+      observer.observe(target);
+    }
+
+    return () => {
+      if (target) {
+        observer.unobserve(target);
+      }
+      observer.disconnect();
+    };
+  }, [player]);
 
   useEffect(() => {
     if (loading || projects.length === 0) return;
@@ -111,11 +205,11 @@ const ProjectDetail = () => {
       {/* YouTube Video Walkthrough Panel */}
       {project.youtubeUrl && getEmbedUrl(project.youtubeUrl) && (
         <div className="glass-panel project-video-panel fade-in-up" style={{
-          padding: '24px',
+          padding: '0',
           position: 'relative',
           overflow: 'hidden',
           width: '100%',
-          maxWidth: '1500px',
+          maxWidth: '1100px',
           margin: '0 auto 40px auto',
           zIndex: 2
         }}>
@@ -137,14 +231,12 @@ const ProjectDetail = () => {
             width: '100%',
             paddingBottom: '56.25%', /* 16:9 Aspect Ratio */
             height: 0,
-            borderRadius: '16px',
             overflow: 'hidden',
-            boxShadow: `0 15px 35px -5px ${project.glow || 'rgba(0, 0, 0, 0.4)'}`,
-            border: '1px solid rgba(255, 255, 255, 0.08)',
             background: '#040209',
             zIndex: 2
           }}>
             <iframe
+              id="project-yt-player"
               src={getEmbedUrl(project.youtubeUrl)}
               title={`${project.title} Video Demo`}
               frameBorder="0"

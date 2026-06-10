@@ -1,63 +1,38 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useServicesPage } from '../data/servicesPage';
 
 const ServicesPage = () => {
   const { config } = useServicesPage();
   const plans = config.plans || [];
   const whyHireMe = config.whyHireMe || [];
+  const [animate, setAnimate] = useState(false);
 
-  // Run reveal-on-scroll animations on mount
+  // Trigger reveal entrance animations on mount
   useEffect(() => {
     const timeoutId = setTimeout(() => {
-      const observer = new IntersectionObserver(
-        (entries, obs) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-              obs.unobserve(entry.target);
-            }
-          });
-        },
-        { root: null, rootMargin: '0px 0px -60px 0px', threshold: 0.08 }
-      );
-      document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
-      return () => observer.disconnect();
+      setAnimate(true);
     }, 100);
     return () => clearTimeout(timeoutId);
   }, []);
 
   return (
-    <div style={{ minHeight: '100vh', paddingTop: '230px', paddingBottom: '60px' }}>
+    <div style={{ minHeight: '100vh', paddingTop: '160px', paddingBottom: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
       {/* ─── Page Hero Banner ─── */}
-      <div className="reveal-on-scroll reveal-fade-up" style={{ textAlign: 'center', marginBottom: '70px', padding: '0 24px' }}>
-        <div className="pricing-badge-pill">
-          {config.heroBadge || "Services & Pricing"}
+      <div className={`section-header reveal-on-scroll reveal-fade-up ${animate ? 'visible' : ''}`} style={{ marginBottom: '60px', padding: '0 24px' }}>
+        <div className="services-badge">
+          <span className="sparkle-spark">✦</span> {config.heroBadge || "Services & Pricing"}
         </div>
-        <h1 style={{
-          fontSize: 'clamp(2.5rem, 6vw, 4.4rem)',
-          fontWeight: '850',
-          color: 'white',
-          margin: '0 0 24px 0',
-          lineHeight: '1.15',
-          letterSpacing: '-1.5px'
-        }}>
-          {config.heroTitle || "Transparent Pricing."}<br />
-          <span className="text-gradient-pricing">{config.heroSubtitle || "Quality Solutions."}</span>
+        <h1 className="section-title">
+          {config.heroTitle || "Transparent Pricing."} <span className="text-gradient">{config.heroSubtitle || "Quality Solutions."}</span>
         </h1>
-        <p style={{
-          fontSize: '17px',
-          color: '#9ca3af',
-          maxWidth: '650px',
-          margin: '0 auto',
-          lineHeight: '1.6'
-        }}>
+        <p className="section-desc" style={{ maxWidth: '650px' }}>
           {config.heroDesc || "Choose the perfect package for your business. Whether you need a simple landing page or a full-scale CMS, we have you covered."}
         </p>
       </div>
 
       {/* ─── Pricing Cards ─── */}
-      <div className="pricing-grid reveal-on-scroll reveal-fade-up delay-100"
+      <div className={`pricing-grid reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`}
         style={{ maxWidth: '1400px', margin: '0 auto 90px auto', padding: '0 24px' }}>
         {plans.map((plan, idx) => (
           <div
@@ -113,7 +88,7 @@ const ServicesPage = () => {
         ))}
       </div>
       {/* ─── Why Hire Me Section ─── */}
-      <div className="reveal-on-scroll reveal-fade-up delay-100" style={{ maxWidth: '1400px', margin: '0 auto 60px auto', padding: '0 24px' }}>
+      <div className={`reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`} style={{ maxWidth: '1400px', margin: '0 auto 60px auto', padding: '0 24px' }}>
         <div className="why-hire-me-container">
           {/* Left Column */}
           <div className="why-hire-me-info">
@@ -188,7 +163,7 @@ const ServicesPage = () => {
       </div>
 
       {/* ─── CTA Section ─── */}
-      <div className="reveal-on-scroll reveal-fade-up delay-100" style={{ maxWidth: '1400px', margin: '60px auto 40px auto', padding: '0 24px' }}>
+      <div className={`reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`} style={{ maxWidth: '1400px', margin: '60px auto 40px auto', padding: '0 24px' }}>
         <div className="services-cta-panel">
           <div className="services-cta-content">
             <h2 className="services-cta-title">{config.ctaTitle || "Need Help Choosing a Plan?"}</h2>

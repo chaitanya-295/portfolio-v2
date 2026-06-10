@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
-import initialServicesList from './services.json';
 
 // Resolves theme color dynamically based on glow colors
 const getColorFromGlow = (glow) => {
@@ -75,7 +74,7 @@ export const ServiceIcon = ({ name, color = 'currentColor' }) => {
 };
 
 export const mapServiceItem = (item) => {
-  const serviceColor = getColorFromGlow(item.glow);
+  const serviceColor = getColorFromGlow(item.glow || '');
   return {
     ...item,
     color: serviceColor,
@@ -85,27 +84,10 @@ export const mapServiceItem = (item) => {
 
 const mapServicesList = (list) => list.map(mapServiceItem);
 
-const loadLocalServices = () => {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('portfolio_services');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        console.error('Failed to parse cached portfolio_services:', e);
-      }
-    }
-  }
-  return initialServicesList;
-};
-
-const servicesList = mapServicesList(loadLocalServices());
+// Default static synchronous reference
+const servicesList = [];
 
 export const updateServicesList = (newList) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('portfolio_services', JSON.stringify(newList));
-  }
-  
   servicesList.length = 0;
   newList.forEach(item => {
     servicesList.push(mapServiceItem(item));
@@ -124,42 +106,30 @@ export const useServices = () => {
       try {
         const q = query(collection(db, 'services'), orderBy('id', 'asc'));
         unsubscribe = onSnapshot(q, (snapshot) => {
-          if (!snapshot.empty) {
-            const list = [];
-            snapshot.forEach((doc) => {
-              list.push({ ...doc.data() });
-            });
-            if (isMounted) {
-              setServices(mapServicesList(list));
-              setLoading(false);
-            }
-          } else {
-            const local = loadLocalServices();
-            if (isMounted) {
-              setServices(mapServicesList(local));
-              setLoading(false);
-            }
+          const list = [];
+          snapshot.forEach((doc) => {
+            list.push({ ...doc.data() });
+          });
+          if (isMounted) {
+            setServices(mapServicesList(list));
+            setLoading(false);
           }
         }, (error) => {
-          console.warn("Firestore services listener failed:", error);
-          const local = loadLocalServices();
+          console.error("Firestore services listener failed:", error);
           if (isMounted) {
-            setServices(mapServicesList(local));
             setLoading(false);
           }
         });
       } catch (error) {
-        console.warn("Firestore services listener setup error:", error);
-        const local = loadLocalServices();
+        console.error("Firestore services listener setup error:", error);
         if (isMounted) {
-          setServices(mapServicesList(local));
           setLoading(false);
         }
       }
     } else {
-      const local = loadLocalServices();
-      setServices(mapServicesList(local));
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     }
 
     return () => {

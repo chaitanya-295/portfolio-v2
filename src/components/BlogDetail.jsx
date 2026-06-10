@@ -6,6 +6,7 @@ const BlogDetail = () => {
   const [post, setPost] = useState(null);
   const [copied, setCopied] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [animate, setAnimate] = useState(false);
 
   useEffect(() => {
     if (loading || !blogPosts || blogPosts.length === 0) return;
@@ -25,18 +26,17 @@ const BlogDetail = () => {
     };
 
     window.addEventListener('hashchange', handleHashChange);
-    handleHashChange(); // Run on initial render
+    handleHashChange(); // Check hash initially
 
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, [blogPosts, loading]);
+  }, [loading, blogPosts]);
 
   // Track page scroll percentage for progress bar
   useEffect(() => {
     const handleScroll = () => {
       const totalScroll = document.documentElement.scrollHeight - window.innerHeight;
       if (totalScroll > 0) {
-        const scrolled = (window.scrollY / totalScroll) * 100;
-        setScrollProgress(scrolled);
+        setScrollProgress((window.scrollY / totalScroll) * 100);
       }
     };
 
@@ -48,19 +48,7 @@ const BlogDetail = () => {
   useEffect(() => {
     if (!post) return;
     const timeoutId = setTimeout(() => {
-      const observer = new IntersectionObserver(
-        (entries, obs) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-              obs.unobserve(entry.target);
-            }
-          });
-        },
-        { root: null, rootMargin: '0px 0px -40px 0px', threshold: 0.05 }
-      );
-      document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
-      return () => observer.disconnect();
+      setAnimate(true);
     }, 100);
     return () => clearTimeout(timeoutId);
   }, [post]);
@@ -94,7 +82,7 @@ const BlogDetail = () => {
   };
 
   return (
-    <section className="about-section blog-detail-section" id="blog-detail" style={{ paddingTop: '160px', minHeight: '90vh', position: 'relative' }}>
+    <section className="about-section blog-detail-section" id="blog-detail" style={{ minHeight: '90vh', position: 'relative' }}>
       
       {/* Reading Progress Scroll Indicator Bar */}
       <div style={{
@@ -125,11 +113,11 @@ const BlogDetail = () => {
         }}
       />
 
-      <div className="section-header reveal-on-scroll reveal-fade-up visible" style={{ zIndex: 2, marginBottom: '40px' }}>
+      <div className={`section-header reveal-on-scroll reveal-fade-up ${animate ? 'visible' : ''}`} style={{ zIndex: 2, marginBottom: '40px' }}>
         <div className="services-badge" style={{ borderColor: post.accentColor, color: post.accentColor, background: post.glow }}>
           <span className="sparkle-spark">✦</span> {post.category}
         </div>
-        <h1 className="section-title" style={{ fontSize: 'clamp(2rem, 5vw, 3.8rem)', letterSpacing: '-1.5px', marginBottom: '16px', lineHeight: '1.2' }}>
+        <h1 className="section-title blog-detail-title">
           {post.title}
         </h1>
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', color: '#9ca3af', fontSize: '14px', flexWrap: 'wrap' }}>
@@ -139,25 +127,14 @@ const BlogDetail = () => {
         </div>
       </div>
 
-      <div className="reveal-on-scroll reveal-fade-up delay-100" style={{ maxWidth: '850px', margin: '0 auto', padding: '0 24px', zIndex: 2, position: 'relative' }}>
+      <div className={`reveal-on-scroll reveal-fade-up delay-100 blog-detail-container ${animate ? 'visible' : ''}`} style={{ maxWidth: '850px', margin: '0 auto', zIndex: 2, position: 'relative' }}>
         
         {/* Massive Blog Header Hero Image */}
         {post.image && (
-          <div className="glass-panel" style={{
-            padding: '12px',
-            borderRadius: '16px',
-            marginBottom: '48px',
-            overflow: 'hidden',
-            border: '1px solid rgba(255, 255, 255, 0.08)',
+          <div className="glass-panel blog-image-panel" style={{
             boxShadow: `0 15px 35px -10px ${post.glow}`
           }}>
-            <div style={{
-              width: '100%',
-              maxHeight: '440px',
-              borderRadius: '10px',
-              overflow: 'hidden',
-              position: 'relative'
-            }}>
+            <div className="blog-image-wrapper">
               <img
                 src={post.image}
                 alt={post.title}
@@ -173,18 +150,18 @@ const BlogDetail = () => {
         )}
 
         {/* Content Layout */}
-        <div className="glass-panel" style={{ padding: '40px 48px', display: 'flex', flexDirection: 'column', gap: '28px', border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+        <div className="glass-panel blog-content-card" style={{ border: '1px solid rgba(255, 255, 255, 0.06)' }}>
           {post.content.map((block, idx) => {
             if (block.type === 'paragraph') {
               return (
-                <p key={idx} style={{ fontSize: '17px', color: '#d1d5db', lineHeight: '1.8', margin: 0 }}>
+                <p key={idx} className="blog-paragraph" style={{ margin: 0 }}>
                   {block.text}
                 </p>
               );
             }
             if (block.type === 'heading') {
               return (
-                <h2 key={idx} style={{ fontSize: '26px', fontWeight: '700', color: 'white', marginTop: '20px', marginBottom: '4px', letterSpacing: '-0.5px' }}>
+                <h2 key={idx} className="blog-heading" style={{ marginTop: '20px', marginBottom: '4px' }}>
                   {block.text}
                 </h2>
               );
@@ -220,18 +197,7 @@ const BlogDetail = () => {
                       Copy
                     </button>
                   </div>
-                  <pre style={{
-                    margin: 0,
-                    padding: '24px',
-                    borderRadius: '12px',
-                    background: 'rgba(0, 0, 0, 0.4)',
-                    border: '1px solid rgba(255, 255, 255, 0.05)',
-                    overflowX: 'auto',
-                    fontSize: '14.5px',
-                    color: '#a7f3d0',
-                    fontFamily: '"Fira Code", monospace',
-                    lineHeight: '1.6'
-                  }}>
+                  <pre className="blog-code-block" style={{ margin: 0 }}>
                     <code>{block.code}</code>
                   </pre>
                 </div>
@@ -241,15 +207,8 @@ const BlogDetail = () => {
           })}
 
           {/* Share & Article Actions Panel */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: '32px',
-            paddingTop: '28px',
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-            flexWrap: 'wrap',
-            gap: '16px'
+          <div className="blog-actions-panel" style={{
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)'
           }}>
             {/* Tags */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>

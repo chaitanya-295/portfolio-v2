@@ -1,26 +1,15 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useBlogPosts } from '../data/blogPosts';
 
 const BlogPage = () => {
   const { blogPosts, loading } = useBlogPosts();
+  const [animate, setAnimate] = useState(false);
 
-  // Run reveal-on-scroll animations on mount or after loading completes
+  // Run reveal animations on mount or after loading completes
   useEffect(() => {
     if (loading) return;
     const timeoutId = setTimeout(() => {
-      const observer = new IntersectionObserver(
-        (entries, obs) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-              obs.unobserve(entry.target);
-            }
-          });
-        },
-        { root: null, rootMargin: '0px 0px -60px 0px', threshold: 0.08 }
-      );
-      document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
-      return () => observer.disconnect();
+      setAnimate(true);
     }, 100);
     return () => clearTimeout(timeoutId);
   }, [loading]);
@@ -46,38 +35,24 @@ const BlogPage = () => {
   }
 
   return (
-    <div style={{ minHeight: '100vh', paddingTop: '230px', paddingBottom: '80px' }}>
+    <div style={{ minHeight: '100vh', paddingTop: '160px', paddingBottom: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
       {/* ─── Page Hero Banner ─── */}
-      <div className="reveal-on-scroll reveal-fade-up" style={{ textAlign: 'center', marginBottom: '70px', padding: '0 24px' }}>
-        <div className="pricing-badge-pill">
-          Beyond The Code
+      <div className={`section-header reveal-on-scroll reveal-fade-up ${animate ? 'visible' : ''}`} style={{ marginBottom: '60px', padding: '0 24px' }}>
+        <div className="services-badge">
+          <span className="sparkle-spark">✦</span> Beyond The Code
         </div>
-        <h1 style={{
-          fontSize: 'clamp(2.5rem, 6vw, 4.4rem)',
-          fontWeight: '850',
-          color: 'white',
-          margin: '0 0 24px 0',
-          lineHeight: '1.15',
-          letterSpacing: '-1.5px'
-        }}>
-          Insights, Experiences<br />
-          <span className="text-gradient-pricing">&amp; Continuous Learning</span>
+        <h1 className="section-title">
+          Insights, Experiences <span className="text-gradient">&amp; Continuous Learning</span>
         </h1>
-        <p style={{
-          fontSize: '17px',
-          color: '#9ca3af',
-          maxWidth: '750px',
-          margin: '0 auto',
-          lineHeight: '1.6'
-        }}>
+        <p className="section-desc" style={{ maxWidth: '650px' }}>
           A collection of thoughts, tutorials, and project stories that reflect my passion for technology, problem-solving, and modern development.
         </p>
       </div>
 
       {/* ─── Articles Grid ─── */}
-      <div 
-        className="reveal-on-scroll reveal-fade-up delay-100"
+      <div
+        className={`reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`}
         style={{
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
@@ -212,7 +187,7 @@ const BlogPage = () => {
               <span style={{ fontSize: '13px', color: '#6b7280' }}>
                 {post.date}
               </span>
-              <div 
+              <div
                 className="blog-arrow"
                 style={{
                   display: 'flex',

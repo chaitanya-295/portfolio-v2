@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
-import initialSkillsList from './skills.json';
 
 // Category SVGs
 export const CategoryIcon = ({ name }) => {
@@ -186,7 +185,6 @@ export const CdnLogo = ({ name }) => {
   }
 
   // Convert to slug representation expected by Simple Icons
-  // Remove space, dots, convert to lowercase
   const cleanSlug = name
     .toLowerCase()
     .replace(/\s+/g, '')
@@ -211,7 +209,7 @@ export const CdnLogo = ({ name }) => {
 export const mapSkillsItem = (category) => ({
   ...category,
   icon: <CategoryIcon name={category.iconName} />,
-  languages: category.languages.map(lang => ({
+  languages: (category.languages || []).map(lang => ({
     ...lang,
     logo: <SkillLogo name={lang.logoName} />
   }))
@@ -219,27 +217,10 @@ export const mapSkillsItem = (category) => ({
 
 const mapSkillsList = (list) => list.map(mapSkillsItem);
 
-const loadLocalSkills = () => {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('portfolio_skills');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        console.error('Failed to parse cached portfolio_skills:', e);
-      }
-    }
-  }
-  return initialSkillsList;
-};
-
-const techCategories = mapSkillsList(loadLocalSkills());
+// Default static synchronous reference
+const techCategories = [];
 
 export const updateSkillsList = (newList) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('portfolio_skills', JSON.stringify(newList));
-  }
-  
   techCategories.length = 0;
   newList.forEach(item => {
     techCategories.push(mapSkillsItem(item));
@@ -258,42 +239,30 @@ export const useSkills = () => {
       try {
         const q = query(collection(db, 'skills'), orderBy('id', 'asc'));
         unsubscribe = onSnapshot(q, (snapshot) => {
-          if (!snapshot.empty) {
-            const list = [];
-            snapshot.forEach((doc) => {
-              list.push({ ...doc.data() });
-            });
-            if (isMounted) {
-              setSkills(mapSkillsList(list));
-              setLoading(false);
-            }
-          } else {
-            const local = loadLocalSkills();
-            if (isMounted) {
-              setSkills(mapSkillsList(local));
-              setLoading(false);
-            }
+          const list = [];
+          snapshot.forEach((doc) => {
+            list.push({ ...doc.data() });
+          });
+          if (isMounted) {
+            setSkills(mapSkillsList(list));
+            setLoading(false);
           }
         }, (error) => {
-          console.warn("Firestore skills listener failed:", error);
-          const local = loadLocalSkills();
+          console.error("Firestore skills listener failed:", error);
           if (isMounted) {
-            setSkills(mapSkillsList(local));
             setLoading(false);
           }
         });
       } catch (error) {
-        console.warn("Firestore skills listener setup error:", error);
-        const local = loadLocalSkills();
+        console.error("Firestore skills listener setup error:", error);
         if (isMounted) {
-          setSkills(mapSkillsList(local));
           setLoading(false);
         }
       }
     } else {
-      const local = loadLocalSkills();
-      setSkills(mapSkillsList(local));
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     }
 
     return () => {

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { collection, query, orderBy, onSnapshot, getDocs } from 'firebase/firestore';
-import initialProjectsList from './projects.json';
+import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 import projectSolarSystem from '../assets/project_solar_system.png';
 import projectCosmicAnalytics from '../assets/project_cosmic_analytics.png';
 import projectNebulaPortal from '../assets/project_nebula_portal.png';
@@ -81,7 +80,7 @@ export const ProjectIcon = ({ name, color = 'currentColor' }) => {
   }
 };
 
-// Formulates clean string bindings from default list
+// Formulates clean string bindings
 export const mapProjectItem = (item) => ({
   ...item,
   imageFile: item.image, // Preserve original filename
@@ -91,45 +90,11 @@ export const mapProjectItem = (item) => ({
 
 const mapProjectsList = (list) => list.map(mapProjectItem);
 
-// Fallback loader
-const loadLocalProjects = () => {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('portfolio_projects');
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          // Map over parsed to keep all projects including user-added ones, merging properties from projects.json if match exists
-          return parsed.map(storedProj => {
-            const initialProj = initialProjectsList.find(p => p.id === storedProj.id);
-            if (initialProj) {
-              const merged = { ...initialProj, ...storedProj };
-              // Clear cached default dummy images if they are set to empty in projects.json
-              if (initialProj.image === "" && typeof storedProj.image === 'string' && !storedProj.image.startsWith('data:')) {
-                merged.image = "";
-              }
-              return merged;
-            }
-            return storedProj;
-          });
-        }
-      } catch (e) {
-        console.error('Failed to parse cached portfolio_projects:', e);
-      }
-    }
-  }
-  return initialProjectsList;
-};
-
 // Default static synchronous reference
-const projectsList = mapProjectsList(loadLocalProjects());
+const projectsList = [];
 
 // Dynamic updater for static cache mutation
 export const updateProjectsList = (newList) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('portfolio_projects', JSON.stringify(newList));
-  }
-
   projectsList.length = 0;
   newList.forEach(item => {
     projectsList.push(mapProjectItem(item));
@@ -149,46 +114,30 @@ export const useProjects = () => {
       try {
         const q = query(collection(db, 'projects'), orderBy('id', 'asc'));
         unsubscribe = onSnapshot(q, (snapshot) => {
-          if (!snapshot.empty) {
-            const list = [];
-            snapshot.forEach((doc) => {
-              const data = doc.data();
-              const initialProj = initialProjectsList.find(p => p.id === data.id);
-              list.push({ ...initialProj, ...data });
-            });
-            if (isMounted) {
-              setProjects(mapProjectsList(list));
-              setLoading(false);
-            }
-          } else {
-            // Firestore exists but is empty
-            const local = loadLocalProjects();
-            if (isMounted) {
-              setProjects(mapProjectsList(local));
-              setLoading(false);
-            }
+          const list = [];
+          snapshot.forEach((doc) => {
+            list.push({ ...doc.data() });
+          });
+          if (isMounted) {
+            setProjects(mapProjectsList(list));
+            setLoading(false);
           }
         }, (error) => {
-          console.warn("Firestore listener failed. Falling back to local storage:", error);
-          const local = loadLocalProjects();
+          console.error("Firestore projects listener failed:", error);
           if (isMounted) {
-            setProjects(mapProjectsList(local));
             setLoading(false);
           }
         });
       } catch (error) {
-        console.warn("Firestore listener setup error. Falling back:", error);
-        const local = loadLocalProjects();
+        console.error("Firestore listener setup error:", error);
         if (isMounted) {
-          setProjects(mapProjectsList(local));
           setLoading(false);
         }
       }
     } else {
-      // Local Fallback
-      const local = loadLocalProjects();
-      setProjects(mapProjectsList(local));
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     }
 
     return () => {

@@ -16,6 +16,7 @@ const ContactPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const [animate, setAnimate] = useState(false);
 
   // Parse query parameters to prefill Subject and Message
   useEffect(() => {
@@ -33,22 +34,11 @@ const ContactPage = () => {
     }
   }, []);
 
-  // Run reveal-on-scroll animations on mount
+  // Run reveal animations on mount or after profile loaded
   useEffect(() => {
+    if (profileLoading) return;
     const timeoutId = setTimeout(() => {
-      const observer = new IntersectionObserver(
-        (entries, obs) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('visible');
-              obs.unobserve(entry.target);
-            }
-          });
-        },
-        { root: null, rootMargin: '0px 0px -60px 0px', threshold: 0.08 }
-      );
-      document.querySelectorAll('.reveal-on-scroll').forEach((el) => observer.observe(el));
-      return () => observer.disconnect();
+      setAnimate(true);
     }, 100);
     return () => clearTimeout(timeoutId);
   }, [profileLoading]);
@@ -123,34 +113,20 @@ const ContactPage = () => {
   return (
     <div className="contact-container">
       {/* ─── Page Hero Banner ─── */}
-      <div className="reveal-on-scroll reveal-fade-up contact-title-section" style={{ padding: '0 24px' }}>
-        <div className="contact-badge-pill">
-          Get In Touch
+      <div className={`section-header reveal-on-scroll reveal-fade-up ${animate ? 'visible' : ''}`} style={{ margin: '0 auto 40px auto', padding: '0 24px' }}>
+        <div className="services-badge">
+          <span className="sparkle-spark">✦</span> Get In Touch
         </div>
-        <h1 style={{
-          fontSize: 'clamp(2.5rem, 6vw, 4.4rem)',
-          fontWeight: '850',
-          color: 'white',
-          margin: '0 0 24px 0',
-          lineHeight: '1.15',
-          letterSpacing: '-1.5px'
-        }}>
-          Let's Build Something<br />
-          <span className="text-gradient">Amazing Together</span>
+        <h1 className="section-title">
+          Let's Build Something <span className="text-gradient">Amazing Together</span>
         </h1>
-        <p style={{
-          fontSize: '17px',
-          color: '#9ca3af',
-          maxWidth: '650px',
-          margin: '0 auto',
-          lineHeight: '1.6'
-        }}>
+        <p className="section-desc" style={{ maxWidth: '650px' }}>
           Have an idea, project, or just want to connect? Drop me a message below, and I will get back to you as soon as possible.
         </p>
       </div>
 
       {/* ─── Contact Info and Form Grid ─── */}
-      <div className="contact-grid reveal-on-scroll reveal-fade-up delay-100">
+      <div className={`contact-grid reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`}>
         
         {/* Left Column: Direct Info Card */}
         <div className="glass-panel contact-info-card">

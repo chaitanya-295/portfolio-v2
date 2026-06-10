@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useLayoutEffect } from 'react';
 import { useProfile } from '../data/profile';
 import developerAvatar from '../assets/developer_avatar.png';
 
@@ -49,6 +49,35 @@ const AboutDetail = () => {
   }, [currentText, isDeleting, loopNum, typingSpeed, phrasesStr]);
 
   const [activeTab, setActiveTab] = useState('about');
+  const [indicatorStyle, setIndicatorStyle] = useState({ opacity: 0 });
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useLayoutEffect(() => {
+    const updateIndicator = () => {
+      const container = document.querySelector('#about-tabs');
+      if (!container) return;
+      const activeBtn = container.querySelector('.tab-btn.active');
+      if (activeBtn) {
+        setIndicatorStyle({
+          top: `${activeBtn.offsetTop}px`,
+          left: `${activeBtn.offsetLeft}px`,
+          width: `${activeBtn.offsetWidth}px`,
+          height: `${activeBtn.offsetHeight}px`,
+          opacity: 1
+        });
+        setTimeout(() => setIsInitialized(true), 50);
+      }
+    };
+
+    updateIndicator();
+    const tId = setTimeout(updateIndicator, 60);
+    window.addEventListener('resize', updateIndicator);
+
+    return () => {
+      clearTimeout(tId);
+      window.removeEventListener('resize', updateIndicator);
+    };
+  }, [activeTab, profileLoading]);
 
   if (profileLoading) {
     return (
@@ -138,14 +167,15 @@ const AboutDetail = () => {
         <h2 className="section-title">
           {profile.name}
         </h2>
-        <h2 style={{ fontSize: '24px', color: 'var(--accent-cyan)', fontWeight: '600', marginBottom: '24px', letterSpacing: '-0.5px', minHeight: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <h2 style={{ fontSize: '24px', color: 'var(--accent-cyan)', fontWeight: '600', marginBottom: '12px', letterSpacing: '-0.5px', minHeight: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <span>{currentText}</span>
           <span className="typewriter-cursor">|</span>
         </h2>
       </div>
 
       {/* Tab Switcher */}
-      <div className="tabs-container">
+      <div className="tabs-container has-indicator" id="about-tabs">
+        <div className={`tab-indicator ${isInitialized ? 'initialized' : ''}`} style={indicatorStyle} />
         <button
           className={`tab-btn ${activeTab === 'about' ? 'active' : ''}`}
           onClick={() => setActiveTab('about')}
@@ -234,7 +264,7 @@ const AboutDetail = () => {
               )}
             </div>
           </div>
-          
+
           {/* Stats container at the bottom of About tab */}
           <div className="stats-container" style={{ maxWidth: '800px', margin: '48px auto 0', width: '100%' }}>
             {stats.map((stat, idx) => (
@@ -286,11 +316,11 @@ const AboutDetail = () => {
             {experiences.map((exp, idx) => {
               const hasCertificate = !!exp.certificate;
               return (
-                <div 
-                  key={idx} 
-                  className="timeline-item" 
+                <div
+                  key={idx}
+                  className="timeline-item"
                   onClick={hasCertificate ? (e) => handleOpenCertificate(e, exp.certificate) : undefined}
-                  style={{ 
+                  style={{
                     position: 'relative',
                     cursor: hasCertificate ? 'pointer' : 'default',
                     transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
@@ -324,7 +354,7 @@ const AboutDetail = () => {
                   </p>
                   {exp.certificate && (
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
-                      <button 
+                      <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleOpenCertificate(e, exp.certificate);

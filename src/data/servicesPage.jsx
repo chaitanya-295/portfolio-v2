@@ -1,29 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
-import initialServicesPage from './servicesPage.json';
-
-const loadLocalServicesPage = () => {
-  if (typeof window !== 'undefined') {
-    const stored = localStorage.getItem('portfolio_services_page');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        console.error('Failed to parse cached portfolio_services_page:', e);
-      }
-    }
-  }
-  return initialServicesPage;
-};
+import { doc, onSnapshot } from 'firebase/firestore';
 
 // Singleton in-memory cache for synchronous rendering
-const servicesPageObj = { ...loadLocalServicesPage() };
+const servicesPageObj = {};
 
 export const updateServicesPage = (newConfig) => {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem('portfolio_services_page', JSON.stringify(newConfig));
-  }
   Object.keys(servicesPageObj).forEach(key => delete servicesPageObj[key]);
   Object.assign(servicesPageObj, newConfig);
 };
@@ -48,33 +30,26 @@ export const useServicesPage = () => {
               setLoading(false);
             }
           } else {
-            // Seed defaults locally if not in DB yet
-            const local = loadLocalServicesPage();
             if (isMounted) {
-              setConfig(local);
               setLoading(false);
             }
           }
         }, (error) => {
-          console.warn("Firestore services_page listener failed:", error);
-          const local = loadLocalServicesPage();
+          console.error("Firestore services_page listener failed:", error);
           if (isMounted) {
-            setConfig(local);
             setLoading(false);
           }
         });
       } catch (error) {
-        console.warn("Firestore services_page setup error:", error);
-        const local = loadLocalServicesPage();
+        console.error("Firestore services_page setup error:", error);
         if (isMounted) {
-          setConfig(local);
           setLoading(false);
         }
       }
     } else {
-      const local = loadLocalServicesPage();
-      setConfig(local);
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     }
 
     return () => {

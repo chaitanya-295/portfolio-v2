@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const Navbar = () => {
+const Navbar = ({ currentRoute }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -9,12 +9,60 @@ const Navbar = () => {
         Chaitanya.
       </a>
       <ul className={`nav-links ${isOpen ? 'mobile-active' : ''}`}>
-        <li><a href="#home" onClick={() => setIsOpen(false)}>Home</a></li>
-        <li><a href="#/about-detail" onClick={() => setIsOpen(false)}>About</a></li>
-        <li><a href="#/projects" onClick={() => setIsOpen(false)}>Projects</a></li>
-        <li><a href="#/services" onClick={() => setIsOpen(false)}>Services</a></li>
-        <li><a href="#/blog" onClick={() => setIsOpen(false)}>Blog</a></li>
-        <li><a href="#/contacts" onClick={() => setIsOpen(false)}>Contacts</a></li>
+        <li>
+          <a 
+            href="#home" 
+            className={currentRoute === 'home' ? 'active' : ''} 
+            onClick={() => setIsOpen(false)}
+          >
+            Home
+          </a>
+        </li>
+        <li>
+          <a 
+            href="#/about-detail" 
+            className={currentRoute === 'about-detail' ? 'active' : ''} 
+            onClick={() => setIsOpen(false)}
+          >
+            About
+          </a>
+        </li>
+        <li>
+          <a 
+            href="#/projects" 
+            className={(currentRoute === 'projects' || currentRoute === 'project-detail') ? 'active' : ''} 
+            onClick={() => setIsOpen(false)}
+          >
+            Projects
+          </a>
+        </li>
+        <li>
+          <a 
+            href="#/services" 
+            className={currentRoute === 'services' ? 'active' : ''} 
+            onClick={() => setIsOpen(false)}
+          >
+            Services
+          </a>
+        </li>
+        <li>
+          <a 
+            href="#/blog" 
+            className={(currentRoute === 'blog' || currentRoute === 'blog-detail') ? 'active' : ''} 
+            onClick={() => setIsOpen(false)}
+          >
+            Blog
+          </a>
+        </li>
+        <li>
+          <a 
+            href="#/contacts" 
+            className={currentRoute === 'contacts' ? 'active' : ''} 
+            onClick={() => setIsOpen(false)}
+          >
+            Contacts
+          </a>
+        </li>
         <li className="mobile-only-cta" style={{ width: '100%', marginTop: '8px' }}>
           <a
             href="#/contacts"

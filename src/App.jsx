@@ -11,6 +11,7 @@ import BlogPage from './components/BlogPage';
 import BlogDetail from './components/BlogDetail';
 import Footer from './components/Footer';
 import ContactPage from './components/ContactPage';
+import ScrollToTop from './components/ScrollToTop';
 import './App.css';
 
 function App() {
@@ -88,55 +89,60 @@ function App() {
       {/* Dynamic Interactive HTML5 Canvas Galaxy Background */}
       <GalaxyBackground />
 
-      {/* Floating Glassmorphic Header Navigation */}
-      <Navbar />
+      <div className="app-entrance-reveal">
+        {/* Floating Glassmorphic Header Navigation */}
+        <Navbar currentRoute={currentRoute} />
 
-      {currentRoute === 'about-detail' ? (
-        <AboutDetail />
-      ) : currentRoute === 'project-detail' ? (
-        <ProjectDetail />
-      ) : currentRoute === 'projects' ? (
-        <ProjectsGallery />
-      ) : currentRoute === 'services' ? (
-        <ServicesPage />
-      ) : currentRoute === 'blog' ? (
-        <BlogPage />
-      ) : currentRoute === 'blog-detail' ? (
-        <BlogDetail />
-      ) : currentRoute === 'admin' ? (
-        <AdminPanel />
-      ) : currentRoute === 'contacts' ? (
-        <ContactPage />
-      ) : (
-        <>
-          {/* Central Cosmic Ring Section */}
-          <Hero />
-          <div className="section-divider" />
+        {currentRoute === 'about-detail' ? (
+          <AboutDetail />
+        ) : currentRoute === 'project-detail' ? (
+          <ProjectDetail />
+        ) : currentRoute === 'projects' ? (
+          <ProjectsGallery />
+        ) : currentRoute === 'services' ? (
+          <ServicesPage />
+        ) : currentRoute === 'blog' ? (
+          <BlogPage />
+        ) : currentRoute === 'blog-detail' ? (
+          <BlogDetail />
+        ) : currentRoute === 'admin' ? (
+          <AdminPanel />
+        ) : currentRoute === 'contacts' ? (
+          <ContactPage />
+        ) : (
+          <>
+            {/* Central Cosmic Ring Section */}
+            <Hero />
+            <div className="section-divider" />
 
-          {/* The Person Behind The Screen Section */}
-          <About />
-          <div className="section-divider" />
+            {/* The Person Behind The Screen Section */}
+            <About />
+            <div className="section-divider" />
 
-          {/* What I Create (Services) Section */}
-          <Services />
-          <div className="section-divider" />
+            {/* What I Create (Services) Section */}
+            <Services />
+            <div className="section-divider" />
 
-          {/* Things I've Built (Projects) Section */}
-          <Projects />
-          <div className="section-divider" />
+            {/* Things I've Built (Projects) Section */}
+            <Projects />
+            <div className="section-divider" />
 
-          {/* What Clients Say (Testimonials) Section (Temporarily Removed) */}
-          {/* <Testimonials /> */}
-          {/* <div className="section-divider" /> */}
+            {/* What Clients Say (Testimonials) Section (Temporarily Removed) */}
+            {/* <Testimonials /> */}
+            {/* <div className="section-divider" /> */}
 
-          {/* Business Online (CTA) Section */}
-          <Cta />
-          <div className="section-divider" />
-        </>
-      )}
+            {/* Business Online (CTA) Section */}
+            <Cta />
+            <div className="section-divider" />
+          </>
+        )}
 
-      {/* Footer Section */}
-      <Footer />
+        {/* Footer Section */}
+        <Footer />
+
+        {/* Floating Scroll to Top Button */}
+        <ScrollToTop currentRoute={currentRoute} />
+      </div>
     </div>
   );
 }
