@@ -17,7 +17,7 @@ const ProjectsGallery = () => {
       style={{ 
         paddingTop: '140px', 
         minHeight: '85vh',
-        maxWidth: '1600px'
+        maxWidth: '1400px'
       }}
     >
       <div className="section-header reveal-on-scroll reveal-fade-up visible">
@@ -58,7 +58,7 @@ const ProjectsGallery = () => {
       {activeTab === 'projects' && (
         <div className="tab-content-wrapper fade-in-up">
           {/* Grid view of projects */}
-          <div className="projects-grid" style={{ maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
+          <div className="projects-grid" style={{ maxWidth: '1400px', width: '100%', margin: '0 auto' }}>
             {loading ? (
               Array.from({ length: 6 }).map((_, idx) => (
                 <div
@@ -156,7 +156,7 @@ const ProjectsGallery = () => {
 
       {activeTab === 'certifications' && (
         <div className="tab-content-wrapper fade-in-up">
-          <div className="certifications-view" style={{ maxWidth: '1300px', margin: '0 auto', width: '100%' }}>
+          <div className="certifications-view" style={{ maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
             <div className="certifications-grid">
               {certsLoading ? (
                 <div style={{ gridColumn: '1 / -1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '300px' }}>
@@ -269,7 +269,7 @@ const ProjectsGallery = () => {
           <div
             className="projects-grid"
             style={{
-              maxWidth: techSubTab === 'All' ? '1550px' : '900px',
+              maxWidth: techSubTab === 'All' ? '1400px' : '900px',
               margin: '0 auto',
               gridTemplateColumns: techSubTab === 'All' ? undefined : '1fr'
             }}

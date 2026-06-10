@@ -1458,7 +1458,7 @@ export default function AdminPanel() {
   return (
     <div className="admin-container">
       {/* Header Title */}
-      <div className="section-header reveal-on-scroll reveal-fade-up visible" style={{ marginBottom: '32px' }}>
+      <div className="section-header reveal-on-scroll reveal-fade-up visible" style={{ marginBottom: '32px', marginLeft: 'auto', marginRight: 'auto' }}>
         <div className="services-badge">
           <span className="sparkle-spark">✦</span> Operations Console
         </div>
@@ -1471,74 +1471,64 @@ export default function AdminPanel() {
       </div>
 
       {/* Tab Switcher */}
-      <div className="tabs-container" style={{ marginBottom: '40px', maxWidth: '900px', margin: '0 auto 40px auto', display: 'flex', gap: '8px' }}>
+      <div className="tabs-container" style={{ marginBottom: '40px', maxWidth: '1400px', margin: '0 auto 40px auto', display: 'flex', gap: '8px' }}>
         <button
           className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`}
           onClick={() => { setActiveTab('services'); handleCancel(); }}
-          style={{ flex: 1 }}
         >
           Services
         </button>
         <button
           className={`tab-btn ${activeTab === 'services-page' ? 'active' : ''}`}
           onClick={() => { setActiveTab('services-page'); setSelectedItem({ id: 'services-page' }); setIsCreateMode(false); }}
-          style={{ flex: 1.2 }}
         >
           Services Page
         </button>
         <button
           className={`tab-btn ${activeTab === 'projects' ? 'active' : ''}`}
           onClick={() => { setActiveTab('projects'); handleCancel(); }}
-          style={{ flex: 1 }}
         >
           Projects
         </button>
         <button
           className={`tab-btn ${activeTab === 'certifications' ? 'active' : ''}`}
           onClick={() => { setActiveTab('certifications'); handleCancel(); }}
-          style={{ flex: 1 }}
         >
           Certifications
         </button>
         <button
           className={`tab-btn ${activeTab === 'tech-stack' ? 'active' : ''}`}
           onClick={() => { setActiveTab('tech-stack'); handleCancel(); }}
-          style={{ flex: 1 }}
         >
           Tech Stack
         </button>
         <button
           className={`tab-btn ${activeTab === 'education' ? 'active' : ''}`}
           onClick={() => { setActiveTab('education'); handleCancel(); }}
-          style={{ flex: 1 }}
         >
           Education
         </button>
         <button
           className={`tab-btn ${activeTab === 'experience' ? 'active' : ''}`}
           onClick={() => { setActiveTab('experience'); handleCancel(); }}
-          style={{ flex: 1 }}
         >
           Experience
         </button>
         <button
           className={`tab-btn ${activeTab === 'blogs' ? 'active' : ''}`}
           onClick={() => { setActiveTab('blogs'); handleCancel(); }}
-          style={{ flex: 1 }}
         >
           Blogs
         </button>
         <button
           className={`tab-btn ${activeTab === 'profile' ? 'active' : ''}`}
           onClick={() => { setActiveTab('profile'); setSelectedItem({ id: 'profile' }); setIsCreateMode(false); }}
-          style={{ flex: 1 }}
         >
           Profile
         </button>
         <button
           className={`tab-btn ${activeTab === 'messages' ? 'active' : ''}`}
           onClick={() => { setActiveTab('messages'); handleCancel(); }}
-          style={{ flex: 1.2 }}
         >
           Messages
         </button>

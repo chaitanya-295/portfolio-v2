@@ -58,7 +58,7 @@ const ServicesPage = () => {
 
       {/* ─── Pricing Cards ─── */}
       <div className="pricing-grid reveal-on-scroll reveal-fade-up delay-100"
-        style={{ maxWidth: '1200px', margin: '0 auto 90px auto', padding: '0 24px' }}>
+        style={{ maxWidth: '1400px', margin: '0 auto 90px auto', padding: '0 24px' }}>
         {plans.map((plan, idx) => (
           <div
             key={idx}
@@ -113,7 +113,7 @@ const ServicesPage = () => {
         ))}
       </div>
       {/* ─── Why Hire Me Section ─── */}
-      <div className="reveal-on-scroll reveal-fade-up delay-100" style={{ maxWidth: '1200px', margin: '0 auto 60px auto', padding: '0 24px' }}>
+      <div className="reveal-on-scroll reveal-fade-up delay-100" style={{ maxWidth: '1400px', margin: '0 auto 60px auto', padding: '0 24px' }}>
         <div className="why-hire-me-container">
           {/* Left Column */}
           <div className="why-hire-me-info">
@@ -188,7 +188,7 @@ const ServicesPage = () => {
       </div>
 
       {/* ─── CTA Section ─── */}
-      <div className="reveal-on-scroll reveal-fade-up delay-100" style={{ maxWidth: '1200px', margin: '60px auto 40px auto', padding: '0 24px' }}>
+      <div className="reveal-on-scroll reveal-fade-up delay-100" style={{ maxWidth: '1400px', margin: '60px auto 40px auto', padding: '0 24px' }}>
         <div className="services-cta-panel">
           <div className="services-cta-content">
             <h2 className="services-cta-title">{config.ctaTitle || "Need Help Choosing a Plan?"}</h2>

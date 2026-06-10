@@ -82,6 +82,7 @@ export const submitTestimonial = async (review) => {
       await addDoc(collection(db, 'testimonials'), reviewWithMeta);
     } catch (e) {
       console.warn("Failed to write to Firestore collection 'testimonials':", e);
+      throw e; // Re-throw so UI handles it as an error
     }
   }
 };
@@ -104,18 +105,26 @@ export const useTestimonials = () => {
               const data = doc.data();
               list.push({ ...data, docId: doc.id });
             });
-            list.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-            if (isMounted) {
-              setTestimonials(list);
-              setLoading(false);
-            }
-          } else {
-            // Seed defaults locally/remotely
-            const local = loadLocalTestimonials();
-            if (isMounted) {
-              setTestimonials(local);
-              setLoading(false);
-            }
+          }
+
+          // Merge local reviews and Firestore reviews to ensure locally-saved reviews display
+          const local = loadLocalTestimonials();
+          const mergedMap = new Map();
+
+          local.forEach(item => {
+            mergedMap.set(item.id, item);
+          });
+
+          list.forEach(item => {
+            mergedMap.set(item.id, item);
+          });
+
+          const mergedList = Array.from(mergedMap.values());
+          mergedList.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+          if (isMounted) {
+            setTestimonials(mergedList);
+            setLoading(false);
           }
         }, (error) => {
           console.warn("Firestore testimonials listener failed:", error);

@@ -125,9 +125,9 @@ function App() {
           <Projects />
           <div className="section-divider" />
 
-          {/* What Clients Say (Testimonials) Section */}
-          <Testimonials />
-          <div className="section-divider" />
+          {/* What Clients Say (Testimonials) Section (Temporarily Removed) */}
+          {/* <Testimonials /> */}
+          {/* <div className="section-divider" /> */}
 
           {/* Business Online (CTA) Section */}
           <Cta />

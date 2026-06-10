@@ -113,7 +113,7 @@ const Hero = () => {
         </p>
 
         <div className="hero-actions" style={{ flexWrap: 'wrap', gap: '16px' }}>
-          <a href="#projects" className="btn-primary">
+          <a href="#/projects" className="btn-primary">
             View Projects
           </a>
           <a href={profile.resumeUrl || "#resume"} onClick={handleOpenResume} className="btn-secondary">
@@ -219,7 +219,7 @@ export const About = () => {
         </p>
       </div>
 
-      <div className="about-grid" style={{ gridTemplateColumns: '1fr', maxWidth: '800px', margin: '0 auto' }}>
+      <div className="about-grid" style={{ gridTemplateColumns: '1fr', maxWidth: '1000px', margin: '0 auto' }}>
         {/* Philosophy/Bio Panel */}
         <div className="about-bio-panel glass-panel reveal-on-scroll reveal-fade-left delay-100" style={{ textAlign: 'center', padding: '48px 32px' }}>
           <div className="bio-glow-effect"></div>
@@ -253,8 +253,6 @@ export const About = () => {
 // ==========================================
 export const Services = () => {
   const { services, loading } = useServices();
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isHovered, setIsHovered] = useState(false);
 
   // Trigger IntersectionObserver once loading completes to animate elements
   useEffect(() => {
@@ -277,24 +275,6 @@ export const Services = () => {
     }, 100);
     return () => clearTimeout(timeoutId);
   }, [loading, services]);
-
-  useEffect(() => {
-    if (isHovered || loading || services.length === 0) return;
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % services.length);
-    }, 4500);
-    return () => clearInterval(interval);
-  }, [isHovered, loading, services.length]);
-
-  const handlePrev = () => {
-    if (services.length === 0) return;
-    setActiveIndex((prev) => (prev - 1 + services.length) % services.length);
-  };
-
-  const handleNext = () => {
-    if (services.length === 0) return;
-    setActiveIndex((prev) => (prev + 1) % services.length);
-  };
 
   return (
     <section className="services-section" id="services">
@@ -325,51 +305,24 @@ export const Services = () => {
           </span>
         </div>
       ) : services.length > 0 ? (
-        <div 
-          className="services-carousel-view reveal-on-scroll reveal-fade-left delay-100"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <div className="services-carousel-container">
-            {services.map((service, idx) => {
-              const count = services.length;
-              let offset = idx - activeIndex;
-
-              if (offset < -count / 2) offset += count;
-              if (offset > count / 2) offset -= count;
-
-              const absOffset = Math.abs(offset);
-              const isActive = offset === 0;
-
-              const translate3d = `translate3d(
-                calc(-50% + ${offset} * var(--carousel-spacing)), 
-                -50%, 
-                ${-absOffset * 110}px
-              )`;
-              const rotateY = `rotateY(${offset * -28}deg)`;
-              const scale = `scale(${1 - absOffset * 0.08})`;
-
-              const inlineStyle = {
-                transform: `${translate3d} ${rotateY} ${scale}`,
-                opacity: absOffset > 2 ? 0 : 1 - absOffset * 0.2,
-                zIndex: 10 - absOffset,
-                pointerEvents: isActive ? 'auto' : (absOffset === 1 ? 'auto' : 'none'),
-                '--card-glow-color': service.glow
-              };
-
-              return (
+        <div className="services-marquee-container">
+          <div className="services-marquee-track">
+            {/* First Group */}
+            <div className="services-marquee-group">
+              {services.map((service, idx) => (
                 <div
-                  key={idx}
-                  className={`glass-panel service-carousel-card ${isActive ? 'active-card' : ''}`}
-                  style={inlineStyle}
-                  onClick={() => setActiveIndex(idx)}
+                  key={`service-g1-${idx}`}
+                  className="glass-panel service-marquee-card"
+                  style={{
+                    '--card-glow-color': service.glow
+                  }}
                 >
                   <div className="service-icon-bg">
                     {service.icon}
                   </div>
                   
                   <h3 className="service-title">{service.title}</h3>
-                  <p className="service-card-desc" style={{ marginBottom: '16px' }}>{service.desc}</p>
+                  <p className="service-card-desc">{service.desc}</p>
 
                   <div className="service-tags">
                     {service.tags.map((tag, tIdx) => (
@@ -379,34 +332,36 @@ export const Services = () => {
                     ))}
                   </div>
                 </div>
-              );
-            })}
-          </div>
-
-          <div className="carousel-controls">
-            <button className="carousel-btn" onClick={handlePrev} aria-label="Previous service">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-              </svg>
-            </button>
-
-            <div className="carousel-dots">
-              {services.map((_, idx) => (
-                <div
-                  key={idx}
-                  className={`carousel-dot ${idx === activeIndex ? 'active' : ''}`}
-                  onClick={() => setActiveIndex(idx)}
-                />
               ))}
             </div>
 
-            <button className="carousel-btn" onClick={handleNext} aria-label="Next service">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </button>
+            {/* Second Group for infinite loop */}
+            <div className="services-marquee-group">
+              {services.map((service, idx) => (
+                <div
+                  key={`service-g2-${idx}`}
+                  className="glass-panel service-marquee-card"
+                  style={{
+                    '--card-glow-color': service.glow
+                  }}
+                >
+                  <div className="service-icon-bg">
+                    {service.icon}
+                  </div>
+                  
+                  <h3 className="service-title">{service.title}</h3>
+                  <p className="service-card-desc">{service.desc}</p>
+
+                  <div className="service-tags">
+                    {service.tags.map((tag, tIdx) => (
+                      <span key={tIdx} className="service-tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       ) : (
@@ -654,141 +609,143 @@ export const Testimonials = () => {
   };
 
   return (
-    <section className="testimonials-section" id="testimonials">
-      <div className="section-header reveal-on-scroll reveal-fade-up">
-        <div className="services-badge">
-          <span className="sparkle-spark">✦</span> Testimonials
-        </div>
-        <h2 className="section-title">
-          What Clients <span className="text-gradient">Say</span>
-        </h2>
-        <p className="section-desc">
-          Real feedback from product teams, startup founders, and technical directors.
-        </p>
-        <button
-          onClick={() => setShowReviewModal(true)}
-          className="btn-primary"
-          style={{ marginTop: '20px', padding: '10px 24px', fontSize: '14.5px', gap: '8px', zIndex: 10 }}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-            <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-          </svg>
-          Write a Review
-        </button>
-      </div>
-
-      {testimonialsLoading ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '350px' }}>
-          <div style={{
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            border: '2px solid rgba(255, 255, 255, 0.1)',
-            borderTopColor: 'var(--accent-purple)',
-            animation: 'spin-slow 2s linear infinite'
-          }} />
-          <span style={{ marginTop: '16px', fontSize: '14px', color: 'var(--text-secondary)' }}>
-            Loading testimonials...
-          </span>
-        </div>
-      ) : testimonialsList.length > 0 ? (
-        <div className="testimonials-carousel-view reveal-on-scroll reveal-fade-right delay-100">
-          <div className="testimonials-carousel-container">
-            {testimonialsList.map((item, idx) => {
-              const count = testimonialsList.length;
-              let offset = idx - activeIndex;
-
-              if (offset < -count / 2) offset += count;
-              if (offset > count / 2) offset -= count;
-
-              const absOffset = Math.abs(offset);
-              const isActive = offset === 0;
-
-              const translate = `translate(calc(-50% + ${offset} * var(--t-carousel-spacing)), -50%)`;
-              const scale = `scale(${1 - absOffset * 0.1})`;
-
-              const inlineStyle = {
-                transform: `${translate} ${scale}`,
-                opacity: absOffset > 1 ? 0 : 1 - absOffset * 0.2,
-                zIndex: 10 - absOffset,
-                pointerEvents: isActive ? 'auto' : 'none',
-                '--testimonial-glow': item.glow
-              };
-
-              return (
-                <div
-                  key={idx}
-                  className={`glass-panel testimonial-carousel-card ${isActive ? 'active-card' : ''}`}
-                  style={inlineStyle}
-                  onClick={() => setActiveIndex(idx)}
-                >
-                  <div className="testimonial-rating">
-                    {[...Array(item.rating || 5)].map((_, i) => (
-                      <svg
-                        key={i}
-                        className="star-icon"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="currentColor"
-                        stroke="currentColor"
-                        strokeWidth="1"
-                      >
-                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                      </svg>
-                    ))}
-                  </div>
-
-                  <p className="testimonial-quote">“{item.text}”</p>
-
-                  <div className="testimonial-author">
-                    <div className="testimonial-avatar" style={{ '--avatar-glow': item.glow }}>
-                      {item.avatar || 'AN'}
-                    </div>
-                    <div className="testimonial-meta">
-                      <h4 className="testimonial-name">{item.name}</h4>
-                      <p className="testimonial-role">
-                        {item.role} @ <span className="text-gradient-purple">{item.company}</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+    <>
+      <section className="testimonials-section" id="testimonials">
+        <div className="section-header reveal-on-scroll reveal-fade-up">
+          <div className="services-badge">
+            <span className="sparkle-spark">✦</span> Testimonials
           </div>
+          <h2 className="section-title">
+            What Clients <span className="text-gradient">Say</span>
+          </h2>
+          <p className="section-desc">
+            Real feedback from product teams, startup founders, and technical directors.
+          </p>
+          <button
+            onClick={() => setShowReviewModal(true)}
+            className="btn-primary"
+            style={{ marginTop: '20px', padding: '10px 24px', fontSize: '14.5px', gap: '8px', zIndex: 10 }}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+              <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+            </svg>
+            Write a Review
+          </button>
+        </div>
 
-          <div className="carousel-controls">
-            <button className="carousel-btn" onClick={handlePrev} aria-label="Previous testimonial">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"></line>
-                <polyline points="12 19 5 12 12 5"></polyline>
-              </svg>
-            </button>
+        {testimonialsLoading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '350px' }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              border: '2px solid rgba(255, 255, 255, 0.1)',
+              borderTopColor: 'var(--accent-purple)',
+              animation: 'spin-slow 2s linear infinite'
+            }} />
+            <span style={{ marginTop: '16px', fontSize: '14px', color: 'var(--text-secondary)' }}>
+              Loading testimonials...
+            </span>
+          </div>
+        ) : testimonialsList.length > 0 ? (
+          <div className="testimonials-carousel-view reveal-on-scroll reveal-fade-right delay-100">
+            <div className="testimonials-carousel-container">
+              {testimonialsList.map((item, idx) => {
+                const count = testimonialsList.length;
+                let offset = idx - activeIndex;
 
-            <div className="carousel-dots">
-              {testimonialsList.map((_, idx) => (
-                <div
-                  key={idx}
-                  className={`carousel-dot ${idx === activeIndex ? 'active' : ''}`}
-                  onClick={() => setActiveIndex(idx)}
-                />
-              ))}
+                if (offset < -count / 2) offset += count;
+                if (offset > count / 2) offset -= count;
+
+                const absOffset = Math.abs(offset);
+                const isActive = offset === 0;
+
+                const translate = `translate(calc(-50% + ${offset} * var(--t-carousel-spacing)), -50%)`;
+                const scale = `scale(${1 - absOffset * 0.1})`;
+
+                const inlineStyle = {
+                  transform: `${translate} ${scale}`,
+                  opacity: absOffset > 1 ? 0 : 1 - absOffset * 0.2,
+                  zIndex: 10 - absOffset,
+                  pointerEvents: isActive ? 'auto' : 'none',
+                  '--testimonial-glow': item.glow
+                };
+
+                return (
+                  <div
+                    key={idx}
+                    className={`glass-panel testimonial-carousel-card ${isActive ? 'active-card' : ''}`}
+                    style={inlineStyle}
+                    onClick={() => setActiveIndex(idx)}
+                  >
+                    <div className="testimonial-rating">
+                      {[...Array(item.rating || 5)].map((_, i) => (
+                        <svg
+                          key={i}
+                          className="star-icon"
+                          width="18"
+                          height="18"
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          stroke="currentColor"
+                          strokeWidth="1"
+                        >
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                      ))}
+                    </div>
+
+                    <p className="testimonial-quote">“{item.text}”</p>
+
+                    <div className="testimonial-author">
+                      <div className="testimonial-avatar" style={{ '--avatar-glow': item.glow }}>
+                        {item.avatar || 'AN'}
+                      </div>
+                      <div className="testimonial-meta">
+                        <h4 className="testimonial-name">{item.name}</h4>
+                        <p className="testimonial-role">
+                          {item.role} @ <span className="text-gradient-purple">{item.company}</span>
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
-            <button className="carousel-btn" onClick={handleNext} aria-label="Next testimonial">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </button>
+            <div className="carousel-controls">
+              <button className="carousel-btn" onClick={handlePrev} aria-label="Previous testimonial">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="19" y1="12" x2="5" y2="12"></line>
+                  <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+              </button>
+
+              <div className="carousel-dots">
+                {testimonialsList.map((_, idx) => (
+                  <div
+                    key={idx}
+                    className={`carousel-dot ${idx === activeIndex ? 'active' : ''}`}
+                    onClick={() => setActiveIndex(idx)}
+                  />
+                ))}
+              </div>
+
+              <button className="carousel-btn" onClick={handleNext} aria-label="Next testimonial">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                  <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-      ) : (
-        <div style={{ textAlign: 'center', padding: '48px 0' }}>
-          <span style={{ color: 'var(--text-secondary)' }}>No reviews found.</span>
-        </div>
-      )}
+        ) : (
+          <div style={{ textAlign: 'center', padding: '48px 0' }}>
+            <span style={{ color: 'var(--text-secondary)' }}>No reviews found.</span>
+          </div>
+        )}
+      </section>
 
       {showReviewModal && (
         <div className="modal-overlay" onClick={() => setShowReviewModal(false)}>
@@ -912,7 +869,7 @@ export const Testimonials = () => {
           </div>
         </div>
       )}
-    </section>
+    </>
   );
 };
 
@@ -933,7 +890,7 @@ export const Cta = () => {
             Build a strong digital presence with modern design and smart solutions.
           </p>
           <div className="cta-actions">
-            <a href="#services" className="btn-primary">
+            <a href="#/services" className="btn-primary">
               Start Now
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="5" y1="12" x2="19" y2="12"></line>

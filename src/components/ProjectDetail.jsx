@@ -115,7 +115,7 @@ const ProjectDetail = () => {
           position: 'relative',
           overflow: 'hidden',
           width: '100%',
-          maxWidth: '1200px',
+          maxWidth: '1500px',
           margin: '0 auto 40px auto',
           zIndex: 2
         }}>
