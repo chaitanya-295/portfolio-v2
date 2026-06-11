@@ -68,4 +68,8 @@ function projectsApiPlugin() {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), projectsApiPlugin()],
+  build: {
+    target: 'es2020',
+    cssTarget: 'chrome80'
+  }
 })
