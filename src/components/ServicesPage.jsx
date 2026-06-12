@@ -33,7 +33,7 @@ const ServicesPage = () => {
 
       {/* ─── Pricing Cards ─── */}
       <div className={`pricing-grid reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`}
-        style={{ maxWidth: '1200px', margin: '0 auto 90px auto', padding: '0 24px' }}>
+        style={{ maxWidth: '1400px', margin: '0 auto 90px auto', padding: '0 24px' }}>
         {plans.map((plan, idx) => (
           <div
             key={idx}
@@ -88,12 +88,12 @@ const ServicesPage = () => {
         ))}
       </div>
       {/* ─── Why Hire Me Section ─── */}
-      <div className={`reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`} style={{ maxWidth: '1200px', margin: '0 auto 60px auto', padding: '0 24px' }}>
+      <div className={`reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`} style={{ maxWidth: '1400px', margin: '0 auto 60px auto', padding: '0 24px' }}>
         <div className="why-hire-me-container">
           {/* Left Column */}
           <div className="why-hire-me-info">
             <h2 className="why-hire-me-title">Why hire me?</h2>
-            
+
             <div className="why-hire-me-list">
               {whyHireMe.map((item, idx) => (
                 <div key={idx} className="why-hire-me-item">
@@ -129,20 +129,20 @@ const ServicesPage = () => {
                   </span>
                 </div>
               </div>
-              
+
               <div className="status-progress-container">
                 <div className="status-progress-track">
                   <div className="status-progress-fill" style={{ width: `${config.statusProgress || 98}%` }}></div>
                 </div>
               </div>
-              
+
               <div className="status-metrics-row">
                 <span className="metric-label">Performance Score</span>
                 <span className="metric-value">{config.performanceScore || "98/100"}</span>
               </div>
-              
+
               <div className="status-metrics-divider"></div>
-              
+
               <div className="status-sub-metrics">
                 <div className="sub-metric-item">
                   <span className="sub-metric-label">Speed Index</span>
@@ -163,7 +163,7 @@ const ServicesPage = () => {
       </div>
 
       {/* ─── CTA Section ─── */}
-      <div className={`reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`} style={{ maxWidth: '1200px', margin: '60px auto 40px auto', padding: '0 24px' }}>
+      <div className={`reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`} style={{ maxWidth: '1400px', margin: '60px auto 40px auto', padding: '0 24px' }}>
         <div className="services-cta-panel">
           <div className="services-cta-content">
             <h2 className="services-cta-title">{config.ctaTitle || "Need Help Choosing a Plan?"}</h2>
@@ -180,7 +180,7 @@ const ServicesPage = () => {
             </a>
             <a href={config.whatsappLink || "https://wa.me/919730593429?text=Hi%20Chaitanya%2C%20I%20would%20like%20to%20discuss%20a%20project%20with%20you%21"} target="_blank" rel="noopener noreferrer" className="btn-secondary cta-btn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: '8px' }}>
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.897 0c3.183.001 6.177 1.24 8.428 3.493 2.25 2.253 3.487 5.25 3.484 8.435-.005 6.573-5.33 11.897-11.9 11.897-1.998-.001-3.957-.502-5.707-1.458L0 24zm6.549-3.722c1.652.98 3.516 1.5 5.434 1.5 5.498 0 9.972-4.475 9.976-9.974.001-2.664-1.034-5.17-2.915-7.054C17.26 2.863 14.76 1.828 12.09 1.828 6.596 1.828 2.12 6.304 2.116 11.804c-.001 1.944.506 3.844 1.47 5.514l-.995 3.637 3.73-.977zm11.367-7.56c-.32-.16-1.89-.93-2.185-1.04-.294-.11-.51-.16-.723.16-.214.32-.828 1.04-1.014 1.25-.187.21-.374.24-.694.08-.32-.16-1.353-.5-2.578-1.593-.952-.85-1.594-1.9-1.782-2.22-.187-.32-.02-.49.14-.65.144-.144.32-.37.48-.56.16-.18.214-.3.32-.5.11-.2.05-.37-.03-.53-.08-.16-.723-1.74-.99-2.388-.26-.625-.526-.54-.723-.55-.186-.01-.4-.01-.613-.01-.214 0-.56.08-.854.4-.294.32-1.123 1.1-1.123 2.68 0 1.58 1.15 3.11 1.31 3.33.16.22 2.264 3.457 5.485 4.85.766.33 1.363.528 1.83.676.77.244 1.47.21 2.025.128.619-.092 1.89-.77 2.152-1.48.26-.71.26-1.32.18-1.45-.08-.13-.3-.21-.62-.37z"/>
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.003 5.324 5.328 0 11.897 0c3.183.001 6.177 1.24 8.428 3.493 2.25 2.253 3.487 5.25 3.484 8.435-.005 6.573-5.33 11.897-11.9 11.897-1.998-.001-3.957-.502-5.707-1.458L0 24zm6.549-3.722c1.652.98 3.516 1.5 5.434 1.5 5.498 0 9.972-4.475 9.976-9.974.001-2.664-1.034-5.17-2.915-7.054C17.26 2.863 14.76 1.828 12.09 1.828 6.596 1.828 2.12 6.304 2.116 11.804c-.001 1.944.506 3.844 1.47 5.514l-.995 3.637 3.73-.977zm11.367-7.56c-.32-.16-1.89-.93-2.185-1.04-.294-.11-.51-.16-.723.16-.214.32-.828 1.04-1.014 1.25-.187.21-.374.24-.694.08-.32-.16-1.353-.5-2.578-1.593-.952-.85-1.594-1.9-1.782-2.22-.187-.32-.02-.49.14-.65.144-.144.32-.37.48-.56.16-.18.214-.3.32-.5.11-.2.05-.37-.03-.53-.08-.16-.723-1.74-.99-2.388-.26-.625-.526-.54-.723-.55-.186-.01-.4-.01-.613-.01-.214 0-.56.08-.854.4-.294.32-1.123 1.1-1.123 2.68 0 1.58 1.15 3.11 1.31 3.33.16.22 2.264 3.457 5.485 4.85.766.33 1.363.528 1.83.676.77.244 1.47.21 2.025.128.619-.092 1.89-.77 2.152-1.48.26-.71.26-1.32.18-1.45-.08-.13-.3-.21-.62-.37z" />
               </svg>
               Chat on WhatsApp
             </a>
