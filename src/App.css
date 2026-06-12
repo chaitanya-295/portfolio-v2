@@ -9,16 +9,16 @@
 
 .navbar {
   position: fixed;
-  top: 20px;
+  top: 15px;
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
-  max-width: 1400px;
-  height: 70px;
+  max-width: 1200px;
+  height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 32px;
+  padding: 0 24px;
   z-index: 100;
 }
 
@@ -27,7 +27,7 @@
 }
 
 .nav-logo {
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   text-decoration: none;
   letter-spacing: -0.5px;
@@ -35,7 +35,7 @@
 
 .nav-links {
   display: flex;
-  gap: 32px;
+  gap: 24px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -45,7 +45,7 @@
   color: var(--text-secondary);
   text-decoration: none;
   font-weight: 500;
-  font-size: 15px;
+  font-size: 14px;
   transition: color 0.3s ease;
   position: relative;
   padding: 6px 0;
@@ -88,8 +88,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 160px 4% 80px;
-  max-width: 1400px;
+  padding: 120px 4% 60px;
+  max-width: 1200px;
   margin: 0 auto;
   min-height: 100vh;
   gap: 60px;
@@ -168,14 +168,14 @@
 }
 
 .hero-title {
-  font-size: 64px;
+  font-size: 52px;
   line-height: 1.1;
   margin: 0 0 20px 0;
-  letter-spacing: -1.5px;
+  letter-spacing: -1.2px;
 }
 
 .hero-desc {
-  font-size: 18px;
+  font-size: 15.5px;
   line-height: 1.6;
   color: var(--text-secondary);
   margin-bottom: 36px;
@@ -665,7 +665,7 @@
 }
 
 .footer-content {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr;
@@ -760,7 +760,7 @@
 }
 
 .footer-bottom {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   padding-top: 30px;
@@ -855,13 +855,13 @@
 }
 
 .section-title {
-  font-size: 44px;
+  font-size: 36px;
   margin: 0 0 16px 0;
   line-height: 1.2;
 }
 
 .section-desc {
-  font-size: 17px;
+  font-size: 15px;
   color: var(--text-secondary);
   line-height: 1.6;
   margin: 0;
@@ -1078,8 +1078,8 @@
 
 /* Projects Section */
 .projects-section {
-  padding: 100px 4% 100px;
-  max-width: 1500px;
+  padding: 80px 4% 80px;
+  max-width: 1200px;
   margin: 0 auto;
   position: relative;
   z-index: 10;
@@ -1362,8 +1362,8 @@
 
 /* About Section */
 .about-section {
-  padding: 100px 4% 120px;
-  max-width: 1500px;
+  padding: 80px 4% 80px;
+  max-width: 1200px;
   margin: 0 auto;
   position: relative;
   z-index: 10;
@@ -1820,7 +1820,7 @@
 /* Pricing Section */
 .pricing-section {
   padding: 100px 4% 100px;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   position: relative;
   z-index: 10;
@@ -2504,7 +2504,7 @@
 
 .testimonials-section {
   padding: 100px 4% 100px;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   position: relative;
   z-index: 10;
@@ -2664,8 +2664,8 @@
 
 /* CTA Section */
 .cta-section {
-  padding: 100px 4% 100px;
-  max-width: 1500px;
+  padding: 80px 4% 80px;
+  max-width: 1200px;
   margin: 0 auto;
   width: 100%;
   position: relative;
@@ -2888,7 +2888,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  max-width: 1500px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 120px 4% 100px;
 }
@@ -3024,7 +3024,7 @@
 .blog-detail-section {
   position: relative;
   overflow: hidden;
-  max-width: 1400px;
+  max-width: 1200px;
   width: 100%;
   margin: 0 auto;
   padding-bottom: 120px;

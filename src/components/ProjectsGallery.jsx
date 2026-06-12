@@ -75,7 +75,7 @@ const ProjectsGallery = () => {
       style={{
         paddingTop: '140px',
         minHeight: '85vh',
-        maxWidth: '1450px',
+        maxWidth: '1200px',
         width: '100%'
       }}
     >
