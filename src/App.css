@@ -3419,6 +3419,14 @@
   animation: appEntrance 1.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
 }
 
+@media (min-width: 1025px) {
+  .app-entrance-reveal {
+    width: 90%;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+}
+
 @keyframes appEntrance {
   to {
     opacity: 1;
