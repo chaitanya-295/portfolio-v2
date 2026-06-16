@@ -89,9 +89,10 @@ function App() {
       {/* Dynamic Interactive HTML5 Canvas Galaxy Background */}
       <GalaxyBackground />
 
+      {/* Floating Glassmorphic Header Navigation */}
+      <Navbar currentRoute={currentRoute} />
+
       <div className="app-entrance-reveal">
-        {/* Floating Glassmorphic Header Navigation */}
-        <Navbar currentRoute={currentRoute} />
 
         {currentRoute === 'about-detail' ? (
           <AboutDetail />
