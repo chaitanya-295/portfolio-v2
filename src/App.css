@@ -1091,7 +1091,7 @@
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 30px;
+  gap: 40px;
   width: 100%;
 }
 
@@ -1253,7 +1253,7 @@
   .projects-grid,
   .services-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    gap: 30px;
   }
 }
 
@@ -1276,7 +1276,7 @@
     flex-direction: row;
     overflow-x: auto;
     scroll-snap-type: x mandatory;
-    gap: 16px;
+    gap: 24px;
     padding: 10px 4% 24px 4%;
     margin-left: -4%;
     margin-right: -4%;
@@ -1794,7 +1794,7 @@
 @media (max-width: 768px) {
   .projects-grid {
     grid-template-columns: 1fr;
-    gap: 20px;
+    gap: 30px;
   }
 
   .about-bio-panel,
