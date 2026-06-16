@@ -1323,9 +1323,9 @@
   }
 
   .service-marquee-card {
-    width: 280px;
-    padding: 24px 20px;
-    border-radius: 16px;
+    width: 335px;
+    padding: 30px 24px;
+    border-radius: 20px;
   }
 
   .service-marquee-card .service-icon-bg {
