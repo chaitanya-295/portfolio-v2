@@ -140,10 +140,10 @@ function App() {
 
         {/* Footer Section */}
         <Footer />
-
-        {/* Floating Scroll to Top Button */}
-        <ScrollToTop currentRoute={currentRoute} />
       </div>
+
+      {/* Floating Scroll to Top Button */}
+      <ScrollToTop />
     </div>
   );
 }

@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 
-const ScrollToTop = ({ currentRoute }) => {
+const ScrollToTop = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [isFooterVisible, setIsFooterVisible] = useState(false);
 
   useEffect(() => {
     const toggleVisibility = () => {
@@ -18,36 +17,6 @@ const ScrollToTop = ({ currentRoute }) => {
     return () => window.removeEventListener('scroll', toggleVisibility);
   }, []);
 
-  useEffect(() => {
-    // Reset footer visibility state on route changes
-    setIsFooterVisible(false);
-
-    // Give a short timeout for the DOM to settle after route change
-    const timeoutId = setTimeout(() => {
-      const footerElement = document.getElementById('footer');
-      if (!footerElement) return;
-
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          setIsFooterVisible(entry.isIntersecting);
-        },
-        {
-          root: null,
-          rootMargin: '0px',
-          threshold: 0,
-        }
-      );
-
-      observer.observe(footerElement);
-
-      return () => {
-        observer.disconnect();
-      };
-    }, 100);
-
-    return () => clearTimeout(timeoutId);
-  }, [currentRoute]);
-
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -55,14 +24,10 @@ const ScrollToTop = ({ currentRoute }) => {
     });
   };
 
-  // Only display the floating scroll-to-top button if page is scrolled down
-  // AND the footer is not currently visible in the viewport.
-  const shouldShow = isVisible && !isFooterVisible;
-
   return (
     <button
       onClick={scrollToTop}
-      className={`scroll-to-top-btn ${shouldShow ? 'visible' : ''}`}
+      className={`scroll-to-top-btn ${isVisible ? 'visible' : ''}`}
       aria-label="Scroll to top"
     >
       <svg
