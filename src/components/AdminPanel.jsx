@@ -7,9 +7,11 @@ import { useProfile, updateProfile } from '../data/profile';
 import { useServicesPage, updateServicesPage } from '../data/servicesPage';
 import { useBlogPosts, updateBlogPostsList } from '../data/blogPosts';
 import { useContactMessages, deleteContactMessage } from '../data/contacts';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from 'firebase/auth';
 import './AdminPanel.css';
+
 
 // Preset Glow Colors
 const GLOW_PRESETS = [
@@ -325,6 +327,67 @@ const hexToRgba = (hex, alpha = 0.18) => {
 };
 
 export default function AdminPanel() {
+  // Auth state
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [adminEmailInput, setAdminEmailInput] = useState('');
+  const [adminPasswordInput, setAdminPasswordInput] = useState('');
+  const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  useEffect(() => {
+    if (!auth) {
+      setAuthLoading(false);
+      return;
+    }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setAuthLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError('');
+    setLoginLoading(true);
+    try {
+      const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || '';
+      if (!adminEmail) {
+        throw new Error("Admin email (VITE_ADMIN_EMAIL) is not configured in the application environment variables.");
+      }
+      if (adminEmailInput.trim().toLowerCase() !== adminEmail.trim().toLowerCase()) {
+        throw new Error("Access Denied: This email is not registered as the admin.");
+      }
+      if (!auth) {
+        throw new Error("Firebase Authentication service is not initialized.");
+      }
+      await signInWithEmailAndPassword(auth, adminEmailInput, adminPasswordInput);
+    } catch (err) {
+      console.error("Login failed:", err);
+      let message = err.message;
+      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        message = "Invalid email or password.";
+      } else if (err.code === 'auth/too-many-requests') {
+        message = "Too many failed attempts. Access temporarily locked. Try again later.";
+      }
+      setLoginError(message);
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    if (!auth) return;
+    try {
+      await signOut(auth);
+      setAdminEmailInput('');
+      setAdminPasswordInput('');
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
+  };
+
   const [activeTab, setActiveTab] = useState('services'); // 'services', 'projects', or 'certifications'
   const { services, loading: servicesLoading } = useServices();
   const { projects, loading: projectsLoading } = useProjects();
@@ -337,6 +400,7 @@ export default function AdminPanel() {
 
   const [selectedItem, setSelectedItem] = useState(null);
   const [isCreateMode, setIsCreateMode] = useState(false);
+
 
   // Form Fields State (Profile)
   const [profName, setProfName] = useState('');
@@ -1455,10 +1519,155 @@ export default function AdminPanel() {
   const activeGlow = activeTab === 'services' ? sGlow : activeTab === 'projects' ? pGlow : activeTab === 'blogs' ? bGlow : activeTab === 'certifications' ? cGlow : activeTab === 'education' ? eduGlow : activeTab === 'experience' ? expGlow : activeTab === 'services-page' ? 'rgba(6, 182, 212, 0.15)' : activeTab === 'messages' ? 'rgba(168, 85, 247, 0.15)' : skGlow;
   const activeColor = GLOW_PRESETS.find(p => p.value === activeGlow)?.color || 'var(--accent-cyan)';
 
+  if (authLoading) {
+    return (
+      <div className="admin-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px' }}>
+          <div className="animate-spin-slow" style={{
+            width: '50px',
+            height: '50px',
+            borderRadius: '50%',
+            border: '3px solid rgba(168, 85, 247, 0.1)',
+            borderTopColor: 'var(--accent-purple)',
+            boxShadow: '0 0 20px rgba(168, 85, 247, 0.2)'
+          }} />
+          <p style={{ color: 'var(--text-secondary)', fontSize: '15px', letterSpacing: '1px' }}>Verifying security credentials...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL || '';
+  if (!user || user.email?.toLowerCase() !== adminEmail.toLowerCase()) {
+    return (
+      <div className="admin-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '70vh' }}>
+        <div className="glass-panel" style={{
+          padding: '40px',
+          width: '100%',
+          maxWidth: '480px',
+          background: 'rgba(15, 10, 29, 0.65)',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(168, 85, 247, 0.1)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '24px'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div className="services-badge" style={{ display: 'inline-flex', margin: '0 auto 12px auto' }}>
+              <span className="sparkle-spark">✦</span> Secure Gateway
+            </div>
+            <h2 style={{ fontSize: '28px', fontWeight: '700', margin: '0 0 8px 0', color: 'white' }}>
+              Admin <span className="text-gradient">Authentication</span>
+            </h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '13.5px', lineHeight: '1.5', margin: 0 }}>
+              This operations console is locked. Please authenticate using authorized administrator credentials.
+            </p>
+          </div>
+
+          <form onSubmit={handleLogin} style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label className="admin-label">Email Address</label>
+              <input
+                type="email"
+                required
+                className="admin-input"
+                placeholder="admin@example.com"
+                value={adminEmailInput}
+                onChange={(e) => setAdminEmailInput(e.target.value)}
+                disabled={loginLoading}
+                style={{ height: '50px' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <label className="admin-label">Password</label>
+              <input
+                type="password"
+                required
+                className="admin-input"
+                placeholder="••••••••••••"
+                value={adminPasswordInput}
+                onChange={(e) => setAdminPasswordInput(e.target.value)}
+                disabled={loginLoading}
+                style={{ height: '50px' }}
+              />
+            </div>
+
+            {loginError && (
+              <div className="status-message error-alert" style={{ fontSize: '13px', padding: '10px 16px', borderRadius: '10px', marginTop: '4px' }}>
+                <span style={{ fontSize: '14px' }}>⚠</span> {loginError}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              className="btn-primary"
+              disabled={loginLoading}
+              style={{
+                width: '100%',
+                height: '50px',
+                justifyContent: 'center',
+                fontSize: '15px',
+                marginTop: '10px',
+                borderRadius: '12px'
+              }}
+            >
+              {loginLoading ? (
+                <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{
+                    width: '16px',
+                    height: '16px',
+                    borderRadius: '50%',
+                    border: '2px solid rgba(255, 255, 255, 0.2)',
+                    borderTopColor: 'white',
+                    animation: 'spin-slow 1s linear infinite'
+                  }}></span>
+                  Verifying...
+                </span>
+              ) : 'Access Console ✦'}
+            </button>
+          </form>
+          
+          <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.25)', textAlign: 'center', marginTop: '8px' }}>
+            Authorized access only. Authentication is processed securely via Firebase.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="admin-container">
+      {/* Top action row */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '-20px', position: 'relative', zIndex: 10 }}>
+        <button
+          onClick={handleLogout}
+          className="btn-secondary"
+          style={{
+            padding: '8px 16px',
+            fontSize: '12px',
+            borderRadius: '10px',
+            borderColor: 'rgba(239, 68, 68, 0.2)',
+            color: '#f87171',
+            background: 'rgba(239, 68, 68, 0.05)',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          Sign Out
+        </button>
+      </div>
+
       {/* Header Title */}
       <div className="section-header reveal-on-scroll reveal-fade-up visible" style={{ marginBottom: '32px', marginLeft: 'auto', marginRight: 'auto' }}>
+
         <div className="services-badge">
           <span className="sparkle-spark">✦</span> Operations Console
         </div>

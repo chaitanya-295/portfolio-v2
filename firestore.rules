@@ -1,8 +1,55 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
+    
+    // Check if the authenticated user is the admin
+    // IMPORTANT: Replace 'your-email@example.com' with your actual Firebase Auth email address.
+    function isAdmin() {
+      return request.auth != null && 
+             request.auth.token.email.lower() == 'your-email@example.com';
+    }
+
+    // Public read, Admin write collections
+    match /services/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /projects/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /certifications/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /skills/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /profile/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /services_page/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    match /blogs/{document} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Contacts: Public can send messages, Admin can read/delete them
+    match /contacts/{document} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Testimonials: Public can read and submit, Admin can manage them
+    match /testimonials/{document} {
+      allow read, create: if true;
+      allow update, delete: if isAdmin();
     }
   }
 }
+

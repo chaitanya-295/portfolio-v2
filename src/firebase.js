@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 
 // Load configuration keys from Vite environment variables
 const firebaseConfig = {
@@ -19,11 +20,13 @@ const isFirebaseConfigured =
 
 let app = null;
 let db = null;
+let auth = null;
 
 if (isFirebaseConfigured) {
   try {
     app = initializeApp(firebaseConfig);
     db = getFirestore(app);
+    auth = getAuth(app);
     console.log("✦ Firebase initialized successfully.");
   } catch (error) {
     console.error("⚠ Firebase initialization failed:", error);
@@ -32,4 +35,5 @@ if (isFirebaseConfigured) {
   console.log("ℹ Firebase credentials not found. Operating in local data mode.");
 }
 
-export { db, isFirebaseConfigured };
+export { db, auth, isFirebaseConfigured };
+
