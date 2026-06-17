@@ -1,17 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, onSnapshot } from 'firebase/firestore';
-import blogCreativeCoding from '../assets/blog_creative_coding.png';
-import blogMicroFrontend from '../assets/blog_micro_frontend.png';
-import blogCosmicCanvas from '../assets/blog_cosmic_canvas.png';
-import blogStateManagement from '../assets/blog_state_management.png';
 
-export const assetMap = {
-  'blog_creative_coding.png': blogCreativeCoding,
-  'blog_micro_frontend.png': blogMicroFrontend,
-  'blog_cosmic_canvas.png': blogCosmicCanvas,
-  'blog_state_management.png': blogStateManagement,
-};
+export const assetMap = {};
 
 export const mapBlogItem = (item) => ({
   ...item,

@@ -1,21 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
-import projectSolarSystem from '../assets/project_solar_system.png';
-import projectCosmicAnalytics from '../assets/project_cosmic_analytics.png';
-import projectNebulaPortal from '../assets/project_nebula_portal.png';
-import projectStarMap from '../assets/project_star_map.png';
-import projectBlackHole from '../assets/project_black_hole.png';
-import projectQuantumOrbital from '../assets/project_quantum_orbital.png';
 
-export const assetMap = {
-  'project_solar_system.png': projectSolarSystem,
-  'project_cosmic_analytics.png': projectCosmicAnalytics,
-  'project_nebula_portal.png': projectNebulaPortal,
-  'project_star_map.png': projectStarMap,
-  'project_black_hole.png': projectBlackHole,
-  'project_quantum_orbital.png': projectQuantumOrbital,
-};
+export const assetMap = {};
 
 export const ProjectIcon = ({ name, color = 'currentColor' }) => {
   switch (name) {
