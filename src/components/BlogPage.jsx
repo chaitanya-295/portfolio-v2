@@ -55,11 +55,11 @@ const BlogPage = () => {
         className={`reveal-on-scroll reveal-fade-up delay-100 ${animate ? 'visible' : ''}`}
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 340px), 1fr))',
           gap: '30px',
           maxWidth: '1400px',
           margin: '0 auto',
-          padding: '0 24px'
+          padding: '0 16px'
         }}
       >
         {blogPosts.map((post, idx) => (
