@@ -5,7 +5,7 @@ import { useCertifications, updateCertificationsList } from '../data/certificati
 import { useSkills, updateSkillsList, CategoryIcon, SkillLogo } from '../data/skills';
 import { useProfile, updateProfile } from '../data/profile';
 import { useServicesPage, updateServicesPage } from '../data/servicesPage';
-import { useBlogPosts, updateBlogPostsList } from '../data/blogPosts';
+import { useBlogPosts, updateBlogPostsList, assetMap as blogAssetMap } from '../data/blogPosts';
 import { useContactMessages, deleteContactMessage } from '../data/contacts';
 import { db, auth } from '../firebase';
 import { collection, query, where, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
@@ -4585,7 +4585,7 @@ export default function AdminPanel() {
                             flexShrink: 0
                           }}>
                             <img 
-                              src={assetMap[bImage] || bImage} 
+                              src={blogAssetMap[bImage] || bImage} 
                               alt="Blog post cover" 
                               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                             />
