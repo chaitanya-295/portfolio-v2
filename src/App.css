@@ -1569,25 +1569,32 @@
 
 
 .certifications-grid {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 24px;
   width: 100%;
-  justify-content: center;
 }
 
 .certification-card {
-  flex: 1 1 400px;
+  width: 100%;
   max-width: 480px;
+  margin: 0 auto;
   min-height: 240px !important;
   padding: 40px 32px !important;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .certifications-grid {
-    flex-direction: column;
-    align-items: center;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}
+
+@media (max-width: 768px) {
+  .certifications-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
     gap: 20px;
     width: 100%;
     padding: 10px 0;
@@ -1596,7 +1603,6 @@
   .certification-card {
     width: 100%;
     max-width: 480px;
-    flex: none;
     min-height: auto !important;
     padding: 24px !important;
   }
