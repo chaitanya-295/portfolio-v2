@@ -419,14 +419,6 @@ const ProjectsGallery = () => {
                               </div>
                               <span style={{ fontSize: '16px', fontWeight: '700', color: 'white' }}>{lang.name}</span>
                             </div>
-                            <span style={{
-                              fontSize: '13.5px',
-                              fontWeight: '600',
-                              color: 'rgba(255, 255, 255, 0.4)',
-                              fontFamily: 'monospace'
-                            }}>
-                              {lang.percentage}%
-                            </span>
                           </div>
 
                           {/* Row 2: Full Width Progress Bar */}
