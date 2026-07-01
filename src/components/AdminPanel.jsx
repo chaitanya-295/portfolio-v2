@@ -3447,24 +3447,26 @@ export default function AdminPanel() {
                         />
                       </div>
 
-                      {/* Icon / Type Selector */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label className="admin-label">Icon / Category Type</label>
-                        <select 
-                          value={skIconName} 
-                          onChange={(e) => {
-                            setSkIconName(e.target.value);
-                            setSkType(e.target.value);
-                          }}
-                          className="admin-select"
-                          style={{ padding: '13px 16px', width: '100%' }}
-                        >
-                          <option value="frontend">Frontend (Code Brackets)</option>
-                          <option value="backend">Backend (Database)</option>
-                          <option value="tools">Tools / Devops (Terminal CLI)</option>
-                        </select>
-                      </div>
-                    </div>
+                       {/* Icon / Type Selector */}
+                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                         <label className="admin-label">Icon / Category Type</label>
+                         <select 
+                           value={skIconName} 
+                           onChange={(e) => {
+                             setSkIconName(e.target.value);
+                             setSkType(e.target.value);
+                           }}
+                           className="admin-select"
+                           style={{ padding: '13px 16px', width: '100%' }}
+                         >
+                           <option value="frontend">Frontend (Code Brackets)</option>
+                           <option value="backend">Backend (Database)</option>
+                           <option value="database_cloud">Database & Cloud (Cloud Database)</option>
+                           <option value="languages">Programming Languages (Code Slash)</option>
+                           <option value="tools">Tools / Devops (Terminal CLI)</option>
+                         </select>
+                       </div>
+                     </div>
 
                     {/* Accent Color Preset */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>

@@ -4,7 +4,8 @@ import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
 
 // Category SVGs
 export const CategoryIcon = ({ name }) => {
-  switch (name) {
+  const normName = (name || '').toLowerCase();
+  switch (normName) {
     case 'frontend':
       return (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -18,6 +19,24 @@ export const CategoryIcon = ({ name }) => {
           <ellipse cx="12" cy="5" rx="9" ry="3" />
           <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
           <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />
+        </svg>
+      );
+    case 'database_cloud':
+    case 'database':
+    case 'cloud':
+      return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-pink)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
+          <ellipse cx="12" cy="13" rx="3" ry="1.5" />
+          <path d="M9 13v3c0 .83 1.34 1.5 3 1.5s3-.67 3-1.5v-3" />
+        </svg>
+      );
+    case 'languages':
+    case 'language':
+    case 'programming_languages':
+      return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M14.5 17.5L19 12l-4.5-5.5M9.5 6.5L5 12l4.5 5.5M12 5l-2 14" />
         </svg>
       );
     case 'tools':

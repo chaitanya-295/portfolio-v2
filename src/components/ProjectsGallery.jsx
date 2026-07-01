@@ -315,7 +315,7 @@ const ProjectsGallery = () => {
           {/* Tech Stack Sub-Tabs */}
           <div className="tabs-container has-indicator" id="tech-tabs" style={{ marginBottom: '32px', gap: '8px', padding: '6px', borderRadius: '30px', maxWidth: 'fit-content', position: 'relative' }}>
             <div className={`tab-indicator ${isSubInit ? 'initialized' : ''}`} style={subIndicatorStyle} />
-            {['All', 'Frontend', 'Backend', 'Tools'].map((subTab) => (
+            {['All', 'Programming Languages', 'Frontend', 'Backend', 'Database & Cloud', 'Tools'].map((subTab) => (
               <button
                 key={subTab}
                 onClick={() => setTechSubTab(subTab)}
@@ -350,10 +350,13 @@ const ProjectsGallery = () => {
             ) : skills.length > 0 ? (
               skills
                 .filter(category => {
+                  const type = (category.type || '').toLowerCase();
                   if (techSubTab === 'All') return true;
-                  if (techSubTab === 'Frontend') return category.type === 'frontend';
-                  if (techSubTab === 'Backend') return category.type === 'backend';
-                  if (techSubTab === 'Tools') return category.type === 'tools';
+                  if (techSubTab === 'Programming Languages') return type === 'languages' || type === 'language' || type === 'programming_languages';
+                  if (techSubTab === 'Frontend') return type === 'frontend';
+                  if (techSubTab === 'Backend') return type === 'backend';
+                  if (techSubTab === 'Database & Cloud') return type === 'database_cloud' || type === 'database' || type === 'cloud';
+                  if (techSubTab === 'Tools') return type === 'tools';
                   return true;
                 })
                 .map((category, idx) => (
@@ -377,7 +380,13 @@ const ProjectsGallery = () => {
                       <div style={{
                         width: '40px',
                         height: '40px',
-                        background: `rgba(${category.type === 'frontend' ? '6, 182, 212' : category.type === 'backend' ? '168, 85, 247' : '99, 102, 241'}, 0.12)`,
+                        background: `rgba(${
+                          category.type === 'frontend' ? '6, 182, 212' : 
+                          category.type === 'backend' ? '168, 85, 247' : 
+                          category.type === 'database_cloud' || category.type === 'database' || category.type === 'cloud' ? '236, 72, 153' : 
+                          category.type === 'languages' || category.type === 'language' || category.type === 'programming_languages' ? '6, 182, 212' : 
+                          '99, 102, 241'
+                        }, 0.12)`,
                         borderRadius: '8px',
                         display: 'flex',
                         alignItems: 'center',
