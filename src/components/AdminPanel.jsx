@@ -1349,7 +1349,7 @@ export default function AdminPanel() {
       updatedRawList = blogPosts.map(b => b.id === selectedItem.id ? updatedBlog : b);
 
       if (db) {
-        await setDoc(doc(db, 'blogs', selectedItem.id), blogData);
+        await setDoc(doc(db, 'blogs', selectedItem.id), updatedBlog);
       }
       setSuccessMsg('Blog post updated successfully!');
     }

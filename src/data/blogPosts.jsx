@@ -38,7 +38,7 @@ export const useBlogPosts = () => {
         unsubscribe = onSnapshot(q, (snapshot) => {
           const list = [];
           snapshot.forEach((doc) => {
-            list.push({ ...doc.data() });
+            list.push({ id: doc.id, ...doc.data() });
           });
           
           if (isMounted) {
