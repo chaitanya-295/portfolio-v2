@@ -164,7 +164,20 @@ const ProjectsGallery = () => {
                   }}
                 >
                   {project.image && (
-                    <div className="project-image-wrapper" style={{ width: '100%', height: '120px', borderRadius: '8px', overflow: 'hidden', marginBottom: '16px', position: 'relative' }}>
+                    <div className="project-image-wrapper" style={{ 
+                      width: 'calc(100% + 48px)', 
+                      height: '200px', 
+                      marginTop: '-24px', 
+                      marginLeft: '-24px', 
+                      marginRight: '-24px', 
+                      marginBottom: '20px', 
+                      borderTopLeftRadius: '24px', 
+                      borderTopRightRadius: '24px', 
+                      borderBottomLeftRadius: '0px',
+                      borderBottomRightRadius: '0px',
+                      overflow: 'hidden', 
+                      position: 'relative' 
+                    }}>
                       <img
                         src={project.image}
                         alt={project.title}
@@ -186,12 +199,17 @@ const ProjectsGallery = () => {
                     </p>
                   </div>
 
-                  <div className="project-tags-list" style={{ marginBottom: '16px' }}>
-                    {project.tags.map((tag, tagIdx) => (
-                      <span key={tagIdx} className="project-tag-item" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', padding: '2px 8px', borderRadius: '8px', fontSize: '10px' }}>
+                  <div className="project-tags-list" style={{ marginBottom: '16px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                    {project.tags.slice(0, 4).map((tag, tagIdx) => (
+                      <span key={tagIdx} className="project-tag-item" style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', padding: '4px 10px', borderRadius: '8px', fontSize: '10.5px', color: 'var(--text-secondary)' }}>
                         {tag}
                       </span>
                     ))}
+                    {project.tags.length > 4 && (
+                      <span className="project-tag-item" style={{ background: 'rgba(168, 85, 247, 0.08)', border: '1px solid rgba(168, 85, 247, 0.15)', padding: '4px 10px', borderRadius: '8px', fontSize: '10.5px', color: 'var(--accent-purple)', fontWeight: '500' }}>
+                        +{project.tags.length - 4} more
+                      </span>
+                    )}
                   </div>
 
                   <div className="project-footer" style={{ width: '100%', marginTop: 'auto' }}>
