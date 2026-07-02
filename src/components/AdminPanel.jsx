@@ -825,22 +825,50 @@ export default function AdminPanel() {
     setErrorMsg('');
   };
 
+  const compressImage = (file, callback, maxSize = 1200, quality = 0.7) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // Calculate new dimensions to maintain aspect ratio
+        if (width > height) {
+          if (width > maxSize) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = Math.round((width * maxSize) / height);
+            height = maxSize;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert to base64 jpeg with quality factor
+        const compressedBase64 = canvas.toDataURL('image/jpeg', quality);
+        callback(compressedBase64);
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Limit to 1.5MB for localStorage performance
-    if (file.size > 1.5 * 1024 * 1024) {
-      alert("Image is too large. Please select an image smaller than 1.5MB for performance optimization.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
-      const base64 = uploadEvent.target.result;
+    compressImage(file, (base64) => {
       setPImage(base64);
-    };
-    reader.readAsDataURL(file);
+    });
   };
 
   const handlePdfUpload = (e) => {
@@ -883,18 +911,9 @@ export default function AdminPanel() {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Limit to 1.5MB for Firestore/localStorage performance
-    if (file.size > 1.5 * 1024 * 1024) {
-      alert("Avatar image file is too large. Please select an image smaller than 1.5MB for performance optimization.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
-      const base64 = uploadEvent.target.result;
+    compressImage(file, (base64) => {
       setProfAvatar(base64);
-    };
-    reader.readAsDataURL(file);
+    }, 400, 0.8);
   };
 
   const handleExpCertificateUpload = (e) => {
@@ -1265,17 +1284,9 @@ export default function AdminPanel() {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (file.size > 1.5 * 1024 * 1024) {
-      alert("Image is too large. Please select an image smaller than 1.5MB for performance optimization.");
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (uploadEvent) => {
-      const base64 = uploadEvent.target.result;
+    compressImage(file, (base64) => {
       setBImage(base64);
-    };
-    reader.readAsDataURL(file);
+    });
   };
 
   const handleAddBlock = (type) => {
