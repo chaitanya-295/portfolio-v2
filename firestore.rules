@@ -6,7 +6,7 @@ service cloud.firestore {
     // IMPORTANT: Replace 'your-email@example.com' with your actual Firebase Auth email address.
     function isAdmin() {
       return request.auth != null && 
-             request.auth.token.email.toLower() == 'your-email@example.com';
+             request.auth.token.email.lower() == 'chaitanyakamble2005@gmail.com';
     }
 
     // Public read, Admin write collections
