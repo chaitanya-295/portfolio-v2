@@ -1,6 +1,100 @@
 import { useState, useEffect } from 'react';
 import { useBlogPosts } from '../data/blogPosts';
 
+// Helper to parse paragraph text and dynamically render markdown-style lists (bullets/numbers)
+const renderParagraphContent = (text) => {
+  if (!text) return null;
+  
+  const lines = text.split('\n');
+  const elements = [];
+  
+  let currentParagraphLines = [];
+  let currentList = [];
+  let isOrdered = false;
+
+  const flushParagraph = (key) => {
+    if (currentParagraphLines.length > 0) {
+      elements.push(
+        <p 
+          key={`p-${key}`} 
+          className="blog-paragraph" 
+          style={{ margin: 0 }}
+        >
+          {currentParagraphLines.map((line, idx) => (
+            <span key={idx}>
+              {line}
+              {idx < currentParagraphLines.length - 1 && <br />}
+            </span>
+          ))}
+        </p>
+      );
+      currentParagraphLines = [];
+    }
+  };
+
+  const flushList = (key) => {
+    if (currentList.length > 0) {
+      const ListTag = isOrdered ? 'ol' : 'ul';
+      elements.push(
+        <ListTag 
+          key={`list-${key}`} 
+          style={{
+            margin: 0,
+            paddingLeft: '24px',
+            color: '#d1d5db',
+            lineHeight: '1.8',
+            fontSize: '17px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px'
+          }}
+        >
+          {currentList.map((item, idx) => (
+            <li key={idx} style={{ color: '#d1d5db' }}>
+              {item}
+            </li>
+          ))}
+        </ListTag>
+      );
+      currentList = [];
+    }
+  };
+
+  lines.forEach((line, idx) => {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      flushParagraph(idx);
+      flushList(idx);
+      return;
+    }
+
+    // Check if line matches standard list bullet: e.g. "- item", "* item", "• item", or "1. item"
+    const bulletMatch = line.match(/^\s*([-\*•]|\d+\.)\s+(.*)/);
+    if (bulletMatch) {
+      flushParagraph(idx);
+      
+      const marker = bulletMatch[1];
+      const content = bulletMatch[2];
+      const lineIsOrdered = /^\d+\./.test(marker);
+
+      if (currentList.length > 0 && isOrdered !== lineIsOrdered) {
+        flushList(idx);
+      }
+
+      isOrdered = lineIsOrdered;
+      currentList.push(content);
+    } else {
+      flushList(idx);
+      currentParagraphLines.push(line);
+    }
+  });
+
+  flushParagraph(lines.length);
+  flushList(lines.length);
+  
+  return elements;
+};
+
 const BlogDetail = () => {
   const { blogPosts, loading } = useBlogPosts();
   const [post, setPost] = useState(null);
@@ -154,9 +248,9 @@ const BlogDetail = () => {
           {post.content.map((block, idx) => {
             if (block.type === 'paragraph') {
               return (
-                <p key={idx} className="blog-paragraph" style={{ margin: 0 }}>
-                  {block.text}
-                </p>
+                <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  {renderParagraphContent(block.text)}
+                </div>
               );
             }
             if (block.type === 'heading') {

@@ -459,19 +459,19 @@ export const Projects = () => {
               }}
             >
               {project.image && (
-                <div className="project-image-wrapper" style={{ 
-                  width: 'calc(100% + 48px)', 
-                  height: '200px', 
-                  marginTop: '-24px', 
-                  marginLeft: '-24px', 
-                  marginRight: '-24px', 
-                  marginBottom: '20px', 
-                  borderTopLeftRadius: '24px', 
-                  borderTopRightRadius: '24px', 
+                <div className="project-image-wrapper" style={{
+                  width: 'calc(100% + 48px)',
+                  height: '200px',
+                  marginTop: '-24px',
+                  marginLeft: '-24px',
+                  marginRight: '-24px',
+                  marginBottom: '20px',
+                  borderTopLeftRadius: '24px',
+                  borderTopRightRadius: '24px',
                   borderBottomLeftRadius: '0px',
                   borderBottomRightRadius: '0px',
-                  overflow: 'hidden', 
-                  position: 'relative' 
+                  overflow: 'hidden',
+                  position: 'relative'
                 }}>
                   <img
                     src={project.image}
