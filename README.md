@@ -180,5 +180,5 @@ Created and maintained by **Chaitanya Kamble**.
 
 Feel free to connect or send a message through the contact page:
 - **Email:** chaitanyakamble2005@gmail.com
-- **LinkedIn:** [Chaitanya Kamble Profile](https://www.linkedin.com/) *(Update with actual link)*
+- **LinkedIn:** [Chaitanya Kamble](https://www.linkedin.com/in/chaitanyakamble29/)
 - **WhatsApp:** [+91 97305 93429](https://wa.me/919730593429)
