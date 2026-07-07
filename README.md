@@ -2,6 +2,8 @@
 
 A premium, interactive developer portfolio featuring a dynamic **3D rotating spiral galaxy background** rendered via HTML5 Canvas, a clean **glassmorphic UI**, and a fully-integrated **Admin CMS Panel** powered by **React 19, Vite, and Firebase**.
 
+🌌 **Live Demo:** [chaitanya-code.netlify.app](https://chaitanya-code.netlify.app/)
+
 ---
 
 ## 📖 Table of Contents
