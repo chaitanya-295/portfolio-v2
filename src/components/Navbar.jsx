@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useProfile } from '../data/profile';
 
 const Navbar = ({ currentRoute }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { profile } = useProfile();
 
   return (
     <nav className="navbar glass-panel">
@@ -18,42 +20,50 @@ const Navbar = ({ currentRoute }) => {
             Home
           </a>
         </li>
-        <li>
-          <a 
-            href="#/about-detail" 
-            className={currentRoute === 'about-detail' ? 'active' : ''} 
-            onClick={() => setIsOpen(false)}
-          >
-            About
-          </a>
-        </li>
-        <li>
-          <a 
-            href="#/projects" 
-            className={(currentRoute === 'projects' || currentRoute === 'project-detail') ? 'active' : ''} 
-            onClick={() => setIsOpen(false)}
-          >
-            Projects
-          </a>
-        </li>
-        <li>
-          <a 
-            href="#/services" 
-            className={currentRoute === 'services' ? 'active' : ''} 
-            onClick={() => setIsOpen(false)}
-          >
-            Services
-          </a>
-        </li>
-        <li>
-          <a 
-            href="#/blog" 
-            className={(currentRoute === 'blog' || currentRoute === 'blog-detail') ? 'active' : ''} 
-            onClick={() => setIsOpen(false)}
-          >
-            Blog
-          </a>
-        </li>
+        {profile.showAbout !== false && (
+          <li>
+            <a 
+              href="#/about-detail" 
+              className={currentRoute === 'about-detail' ? 'active' : ''} 
+              onClick={() => setIsOpen(false)}
+            >
+              About
+            </a>
+          </li>
+        )}
+        {profile.showProjects !== false && (
+          <li>
+            <a 
+              href="#/projects" 
+              className={(currentRoute === 'projects' || currentRoute === 'project-detail') ? 'active' : ''} 
+              onClick={() => setIsOpen(false)}
+            >
+              Projects
+            </a>
+          </li>
+        )}
+        {profile.showServices !== false && (
+          <li>
+            <a 
+              href="#/services" 
+              className={currentRoute === 'services' ? 'active' : ''} 
+              onClick={() => setIsOpen(false)}
+            >
+              Services
+            </a>
+          </li>
+        )}
+        {profile.showBlog !== false && (
+          <li>
+            <a 
+              href="#/blog" 
+              className={(currentRoute === 'blog' || currentRoute === 'blog-detail') ? 'active' : ''} 
+              onClick={() => setIsOpen(false)}
+            >
+              Blog
+            </a>
+          </li>
+        )}
         <li>
           <a 
             href="#/contacts" 

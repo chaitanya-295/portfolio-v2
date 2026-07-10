@@ -421,6 +421,10 @@ export default function AdminPanel() {
     { value: '', label: '' }
   ]);
   const [profSkills, setProfSkills] = useState([]);
+  const [profShowBlog, setProfShowBlog] = useState(true);
+  const [profShowProjects, setProfShowProjects] = useState(true);
+  const [profShowServices, setProfShowServices] = useState(true);
+  const [profShowAbout, setProfShowAbout] = useState(true);
 
   // Form Fields State (Services Page)
   const [spHeroBadge, setSpHeroBadge] = useState('');
@@ -745,6 +749,10 @@ export default function AdminPanel() {
           { value: '', label: '' }
         ]);
         setProfSkills(profile.skillsList ? profile.skillsList.map(s => ({ name: s.name || '', level: s.level || 80, color: s.color || 'var(--accent-cyan)' })) : []);
+        setProfShowBlog(profile.showBlog !== false);
+        setProfShowProjects(profile.showProjects !== false);
+        setProfShowServices(profile.showServices !== false);
+        setProfShowAbout(profile.showAbout !== false);
         setSuccessMsg('');
         setErrorMsg('');
       }
@@ -1243,7 +1251,11 @@ export default function AdminPanel() {
       stats: profStats,
       skillsList: profSkills,
       education: profile.education || [],
-      experiences: profile.experiences || []
+      experiences: profile.experiences || [],
+      showBlog: profShowBlog,
+      showProjects: profShowProjects,
+      showServices: profShowServices,
+      showAbout: profShowAbout
     };
 
     if (db) {
@@ -4092,6 +4104,56 @@ export default function AdminPanel() {
                           ))}
                         </div>
                       )}
+                    </div>
+
+                    {/* Webpage Section Visibility Settings */}
+                    <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                      <h4 style={{ color: 'white', fontSize: '15px', fontWeight: '600', margin: 0 }}>Webpage Section Visibility</h4>
+                      <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+                        Toggle the visibility of main sections on your portfolio web page.
+                      </span>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px' }}>
+                          <input 
+                            type="checkbox" 
+                            id="show-blog-toggle"
+                            checked={profShowBlog} 
+                            onChange={(e) => setProfShowBlog(e.target.checked)} 
+                            style={{ width: '18px', height: '18px', accentColor: 'var(--accent-cyan)', cursor: 'pointer' }}
+                          />
+                          <label htmlFor="show-blog-toggle" style={{ color: 'white', fontSize: '13px', cursor: 'pointer', userSelect: 'none' }}>Show Blog Section</label>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px' }}>
+                          <input 
+                            type="checkbox" 
+                            id="show-projects-toggle"
+                            checked={profShowProjects} 
+                            onChange={(e) => setProfShowProjects(e.target.checked)} 
+                            style={{ width: '18px', height: '18px', accentColor: 'var(--accent-cyan)', cursor: 'pointer' }}
+                          />
+                          <label htmlFor="show-projects-toggle" style={{ color: 'white', fontSize: '13px', cursor: 'pointer', userSelect: 'none' }}>Show Projects Section</label>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px' }}>
+                          <input 
+                            type="checkbox" 
+                            id="show-services-toggle"
+                            checked={profShowServices} 
+                            onChange={(e) => setProfShowServices(e.target.checked)} 
+                            style={{ width: '18px', height: '18px', accentColor: 'var(--accent-cyan)', cursor: 'pointer' }}
+                          />
+                          <label htmlFor="show-services-toggle" style={{ color: 'white', fontSize: '13px', cursor: 'pointer', userSelect: 'none' }}>Show Services Section</label>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', background: 'rgba(255,255,255,0.01)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '10px' }}>
+                          <input 
+                            type="checkbox" 
+                            id="show-about-toggle"
+                            checked={profShowAbout} 
+                            onChange={(e) => setProfShowAbout(e.target.checked)} 
+                            style={{ width: '18px', height: '18px', accentColor: 'var(--accent-cyan)', cursor: 'pointer' }}
+                          />
+                          <label htmlFor="show-about-toggle" style={{ color: 'white', fontSize: '13px', cursor: 'pointer', userSelect: 'none' }}>Show About Section</label>
+                        </div>
+                      </div>
                     </div>
                   </>
                 )}

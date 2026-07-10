@@ -12,10 +12,12 @@ import BlogDetail from './components/BlogDetail';
 import Footer from './components/Footer';
 import ContactPage from './components/ContactPage';
 import ScrollToTop from './components/ScrollToTop';
+import { useProfile } from './data/profile';
 import './App.css';
 
 function App() {
   const [currentRoute, setCurrentRoute] = useState('home');
+  const { profile, loading: profileLoading } = useProfile();
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -84,6 +86,17 @@ function App() {
     return () => clearTimeout(timeoutId);
   }, [currentRoute]);
 
+  if (profileLoading) {
+    return (
+      <div className="app-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#03000a' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '48px', height: '48px', borderRadius: '50%', border: '3px solid rgba(255, 255, 255, 0.1)', borderTopColor: 'var(--accent-cyan)', animation: 'spin-slow 2s linear infinite' }} />
+          <span style={{ marginTop: '16px', fontSize: '14px', color: 'var(--text-secondary)' }}>Loading portfolio...</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="app-container">
       {/* Dynamic Interactive HTML5 Canvas Galaxy Background */}
@@ -94,17 +107,17 @@ function App() {
 
       <div className="app-entrance-reveal">
 
-        {currentRoute === 'about-detail' ? (
+        {currentRoute === 'about-detail' && profile.showAbout !== false ? (
           <AboutDetail />
-        ) : currentRoute === 'project-detail' ? (
+        ) : currentRoute === 'project-detail' && profile.showProjects !== false ? (
           <ProjectDetail />
-        ) : currentRoute === 'projects' ? (
+        ) : currentRoute === 'projects' && profile.showProjects !== false ? (
           <ProjectsGallery />
-        ) : currentRoute === 'services' ? (
+        ) : currentRoute === 'services' && profile.showServices !== false ? (
           <ServicesPage />
-        ) : currentRoute === 'blog' ? (
+        ) : currentRoute === 'blog' && profile.showBlog !== false ? (
           <BlogPage />
-        ) : currentRoute === 'blog-detail' ? (
+        ) : currentRoute === 'blog-detail' && profile.showBlog !== false ? (
           <BlogDetail />
         ) : currentRoute === 'admin' ? (
           <AdminPanel />
@@ -117,16 +130,28 @@ function App() {
             <div className="section-divider" />
 
             {/* The Person Behind The Screen Section */}
-            <About />
-            <div className="section-divider" />
+            {profile.showAbout !== false && (
+              <>
+                <About />
+                <div className="section-divider" />
+              </>
+            )}
 
             {/* What I Create (Services) Section */}
-            <Services />
-            <div className="section-divider" />
+            {profile.showServices !== false && (
+              <>
+                <Services />
+                <div className="section-divider" />
+              </>
+            )}
 
             {/* Things I've Built (Projects) Section */}
-            <Projects />
-            <div className="section-divider" />
+            {profile.showProjects !== false && (
+              <>
+                <Projects />
+                <div className="section-divider" />
+              </>
+            )}
 
             {/* What Clients Say (Testimonials) Section (Temporarily Removed) */}
             {/* <Testimonials /> */}
