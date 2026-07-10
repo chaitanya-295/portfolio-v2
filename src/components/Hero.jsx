@@ -3,6 +3,7 @@ import projectsList, { useProjects } from '../data/projects';
 import { useServices } from '../data/services';
 import { useProfile } from '../data/profile';
 import { useTestimonials, submitTestimonial } from '../data/testimonials';
+import astronautImg from '../assets/astronaut.png';
 
 // ==========================================
 // 1. HERO COMPONENT (Default Export)
@@ -183,6 +184,11 @@ const Hero = () => {
           <div className="cosmic-ring-1"></div>
           <div className="cosmic-ring-2"></div>
           <div className="cosmic-ring-3"></div>
+
+          {/* Centered Astronaut */}
+          <div className="astronaut-container">
+            <img src={astronautImg} alt="Astronaut" className="astronaut-image" />
+          </div>
         </div>
       </div>
     </section>
