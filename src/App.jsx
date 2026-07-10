@@ -84,7 +84,7 @@ function App() {
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [currentRoute]);
+  }, [currentRoute, profileLoading]);
 
   if (profileLoading) {
     return (
